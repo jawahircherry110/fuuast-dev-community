@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FUUAST Developer Community | Federal Urdu University of Arts, Science & Technology",
-  description: "The official developer and tech community at FUUAST. Inspiring innovation, open-source collaboration, and technical excellence.",
+  title: "FUUAST Islamabad Dev Community | CS, SE & AI Student Portal",
+  description: "Official student collaboration, project sharing, internships, placements, and developer community for Computer Science, Software Engineering, and Artificial Intelligence students at FUUAST Islamabad.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
