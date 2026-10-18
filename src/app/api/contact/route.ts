@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-
-const messagesPath = path.join(process.cwd(), "src", "data", "messages.json");
+import { saveMessage } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -11,28 +8,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    let json = { messages: [] as any[] };
-    try {
-      const fileData = await fs.readFile(messagesPath, "utf-8");
-      json = JSON.parse(fileData);
-    } catch {
-      // file will be created if not exists
-    }
-
-    const newMessage = {
-      id: `msg-${Date.now()}`,
-      name: body.name,
-      email: body.email,
-      department: body.department || "General",
-      subject: body.subject || "",
-      message: body.message,
-      timestamp: new Date().toISOString(),
-    };
-
-    json.messages.unshift(newMessage);
-    await fs.writeFile(messagesPath, JSON.stringify(json, null, 2), "utf-8");
-
-    return NextResponse.json({ success: true, message: newMessage });
+    const result = await saveMessage(body);
+    return NextResponse.json({ success: true, ...result });
   } catch (error) {
     return NextResponse.json({ error: "Failed to save message" }, { status: 500 });
   }
