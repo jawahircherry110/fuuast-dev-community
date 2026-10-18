@@ -1,0 +1,43 @@
+{
+  "profiles": [
+    {
+      "id": "p1",
+      "name": "Hamza Tariq",
+      "rollNo": "FA22-BCS-041",
+      "department": "CS",
+      "semester": "6th Semester",
+      "bio": "Full-stack developer interested in cloud APIs and distributed systems. Looking for FYP partners.",
+      "skills": ["React", "Next.js", "Node.js", "PostgreSQL", "Docker"],
+      "interests": ["Web Systems", "Cloud Computing"],
+      "openToCollaborate": true,
+      "email": "hamza.tariq@fuuast.edu.pk",
+      "avatarBg": "bg-blue-600"
+    },
+    {
+      "id": "p2",
+      "name": "Ayesha Malik",
+      "rollNo": "SP23-BAI-019",
+      "department": "AI",
+      "semester": "4th Semester",
+      "bio": "Computer Vision and NLP researcher. Working on Urdu language processing and classification models.",
+      "skills": ["Python", "PyTorch", "OpenCV", "TensorFlow"],
+      "interests": ["Deep Learning", "Urdu NLP"],
+      "openToCollaborate": true,
+      "email": "ayesha.malik@fuuast.edu.pk",
+      "avatarBg": "bg-indigo-600"
+    },
+    {
+      "id": "p3",
+      "name": "Bilal Ahmed Khan",
+      "rollNo": "FA21-BSE-088",
+      "department": "SE",
+      "semester": "8th Semester",
+      "bio": "Final year Software Engineering student. Building cross-platform mobile apps with Flutter and TypeScript backend.",
+      "skills": ["Flutter", "TypeScript", "NestJS", "CI/CD"],
+      "interests": ["Mobile Engineering", "DevOps"],
+      "openToCollaborate": true,
+      "email": "bilal.khan@fuuast.edu.pk",
+      "avatarBg": "bg-sky-600"
+    }
+  ]
+}
