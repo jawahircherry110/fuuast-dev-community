@@ -15,18 +15,22 @@ import {
 import { initialJobs, JobOpportunity } from "@/data/initialData";
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState<JobOpportunity[]>(initialJobs);
+  const [jobs, setJobs] = useState<JobOpportunity[]>([]);
+  const [loading, setLoading] = useState(true);
   const [deptFilter, setDeptFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
-    fetch("/api/jobs")
+    fetch("/api/jobs", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (data.jobs && data.jobs.length > 0) setJobs(data.jobs);
+        if (data && Array.isArray(data.jobs)) {
+          setJobs(data.jobs);
+        }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = jobs.filter((j) => {

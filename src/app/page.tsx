@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   GraduationCap,
@@ -14,10 +16,21 @@ import {
   BookOpen,
   Sparkles,
 } from "lucide-react";
-import { initialJobs } from "@/data/initialData";
+import { JobOpportunity } from "@/data/initialData";
 
 export default function Home() {
-  const featuredJobs = initialJobs.slice(0, 4);
+  const [featuredJobs, setFeaturedJobs] = useState<JobOpportunity[]>([]);
+
+  useEffect(() => {
+    fetch("/api/jobs", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.jobs)) {
+          setFeaturedJobs(data.jobs.slice(0, 4));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div>
@@ -194,7 +207,12 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {featuredJobs.map((job) => (
+            {featuredJobs.length === 0 ? (
+              <div className="col-span-2 text-center py-8 bg-white rounded-xl border border-dashed border-slate-200">
+                <p className="text-slate-500 text-xs">No active opportunities currently listed.</p>
+              </div>
+            ) : (
+              featuredJobs.map((job) => (
               <div
                 key={job.id}
                 className="p-5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors shadow-xs flex flex-col justify-between"
@@ -233,7 +251,7 @@ export default function Home() {
                   </a>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       </section>

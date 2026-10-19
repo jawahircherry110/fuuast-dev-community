@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getProfiles, saveProfile, deleteProfile } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const profiles = await getProfiles();

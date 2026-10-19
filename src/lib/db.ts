@@ -75,6 +75,28 @@ async function ensureTables(p: mysql.Pool) {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    // Create a meta table to check if jobs were ever seeded
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS db_meta (
+        meta_key VARCHAR(64) PRIMARY KEY,
+        meta_value VARCHAR(64)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // Check if initial seeding was done
+    const [metaRows] = await p.query<any[]>("SELECT * FROM db_meta WHERE meta_key = 'jobs_seeded'");
+    if (!metaRows || metaRows.length === 0) {
+      // Seed initial jobs once
+      for (const j of initialJobs) {
+        await p.query(
+          `INSERT IGNORE INTO jobs (id, title, company, location, type, department, stipend, description, apply_link, posted_date)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [j.id, j.title, j.company, j.location, j.type, j.department, j.stipend, j.description, j.applyLink, j.postedDate]
+        );
+      }
+      await p.query("INSERT INTO db_meta (meta_key, meta_value) VALUES ('jobs_seeded', '1')");
+    }
+
     tablesInitialized = true;
   } catch (err) {
     console.warn("Could not ensure MySQL tables:", err);
@@ -92,7 +114,7 @@ export async function getProfiles() {
       "SELECT * FROM student_profiles ORDER BY created_at DESC"
     );
 
-    if (rows && rows.length > 0) {
+    if (Array.isArray(rows)) {
       return rows.map((r) => ({
         id: r.id,
         name: r.name,
@@ -218,7 +240,7 @@ export async function getMessages() {
     const [rows] = await p.query<any[]>(
       "SELECT * FROM contact_messages ORDER BY created_at DESC"
     );
-    if (rows && rows.length > 0) {
+    if (Array.isArray(rows)) {
       return rows.map((r) => ({
         id: r.id,
         name: r.name,
@@ -306,16 +328,18 @@ export async function deleteMessage(id: string) {
 }
 
 /* ==========================================================
-   JOBS & INTERNSHIPS (Admin managed)
+   JOBS & INTERNSHIPS (Accurate Database Queries)
 ========================================================== */
 export async function getJobs(): Promise<JobOpportunity[]> {
+  // 1. Try MySQL Database
   try {
     const p = getPool();
     await ensureTables(p);
     const [rows] = await p.query<any[]>(
       "SELECT * FROM jobs ORDER BY created_at DESC"
     );
-    if (rows && rows.length > 0) {
+    // If MySQL returns an array (even if 0 rows!), return it exactly as in the database!
+    if (Array.isArray(rows)) {
       return rows.map((r) => ({
         id: r.id,
         title: r.title,
@@ -331,12 +355,18 @@ export async function getJobs(): Promise<JobOpportunity[]> {
     }
   } catch {}
 
+  // 2. Try local jobs.json file
   try {
     const fileData = await fs.readFile(localJobsPath, "utf-8");
     const json = JSON.parse(fileData);
-    if (json.jobs && json.jobs.length > 0) {
+    if (Array.isArray(json.jobs)) {
       return json.jobs;
     }
+  } catch {}
+
+  // 3. Fallback only if local file doesn't exist at all yet
+  try {
+    await fs.writeFile(localJobsPath, JSON.stringify({ jobs: initialJobs }, null, 2), "utf-8");
   } catch {}
 
   return initialJobs;
@@ -390,7 +420,7 @@ export async function saveJob(job: {
   };
 
   try {
-    let json = { jobs: initialJobs };
+    let json = { jobs: [] as JobOpportunity[] };
     try {
       const fileData = await fs.readFile(localJobsPath, "utf-8");
       json = JSON.parse(fileData);
@@ -411,7 +441,7 @@ export async function deleteJob(id: string) {
   } catch {}
 
   try {
-    let json = { jobs: initialJobs };
+    let json = { jobs: [] as JobOpportunity[] };
     try {
       const fileData = await fs.readFile(localJobsPath, "utf-8");
       json = JSON.parse(fileData);
