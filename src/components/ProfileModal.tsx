@@ -293,10 +293,10 @@ export default function ProfileModal({
                 <img
                   src={submittedProfile.photoUrl}
                   alt={submittedProfile.name}
-                  className="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-slate-200 shadow-sm shrink-0"
                 />
               ) : (
-                <div className="w-14 h-14 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shrink-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 shadow-sm">
                   {submittedProfile.name
                     .split(" ")
                     .map((n: string) => n[0])
@@ -395,12 +395,12 @@ export default function ProfileModal({
                       <img
                         src={profileForm.photoUrl}
                         alt="Preview"
-                        className="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-2xs"
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-200 shadow-sm"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center border border-slate-300">
-                        <Camera className="w-6 h-6" />
-                        <span className="text-[9px] mt-0.5">Photo</span>
+                      <div className="w-20 h-20 rounded-2xl bg-slate-200 text-slate-400 flex flex-col items-center justify-center border-2 border-dashed border-slate-300">
+                        <Camera className="w-7 h-7" />
+                        <span className="text-[10px] mt-0.5 font-medium">Add Photo</span>
                       </div>
                     )}
                   </div>

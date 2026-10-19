@@ -109,10 +109,10 @@ export default function StudentsPage() {
                     <img
                       src={myProfile.photoUrl}
                       alt={myProfile.name}
-                      className="w-14 h-14 rounded-xl object-cover border border-amber-300 shadow-2xs shrink-0"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-amber-300 shadow-sm shrink-0"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 shadow-sm">
                       {myProfile.name
                         .split(" ")
                         .map((n) => n[0])
@@ -200,10 +200,10 @@ export default function StudentsPage() {
                     <img
                       src={myProfile.photoUrl}
                       alt={myProfile.name}
-                      className="w-14 h-14 rounded-xl object-cover border border-blue-300 shadow-2xs shrink-0"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-blue-300 shadow-sm shrink-0"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl sm:text-2xl shadow-sm shrink-0">
                       {myProfile.name
                         .split(" ")
                         .map((n) => n[0])
@@ -366,18 +366,18 @@ export default function StudentsPage() {
                 className="p-5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors shadow-xs flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-start gap-3.5 mb-3.5">
                     {student.photoUrl ? (
                       <img
                         src={student.photoUrl}
                         alt={student.name}
-                        className="w-11 h-11 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-slate-100 shadow-sm shrink-0"
                       />
                     ) : (
                       <div
-                        className={`w-11 h-11 rounded-xl ${
+                        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${
                           student.avatarBg || "bg-blue-600"
-                        } text-white flex items-center justify-center font-bold text-xs shrink-0`}
+                        } text-white flex items-center justify-center font-bold text-xl sm:text-2xl shadow-sm shrink-0`}
                       >
                         {student.name
                           .split(" ")
@@ -387,23 +387,24 @@ export default function StudentsPage() {
                           .toUpperCase()}
                       </div>
                     )}
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="text-sm font-semibold text-slate-900 leading-tight truncate">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-sm sm:text-base font-semibold text-slate-900 leading-snug">
                           {student.name}
                         </h3>
                         <span title="Verified FUUAST Student">
-                          <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        BS{student.department} • {student.semester}
-                      </p>
+                      <div className="mt-1">
+                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
+                          BS{student.department} • {student.semester}
+                        </span>
+                      </div>
+                      <div className="text-[10px] font-mono text-slate-400 mt-1">
+                        {student.rollNo}
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="text-[10px] font-mono text-slate-400 mb-2">
-                    {student.rollNo}
                   </div>
 
                   <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-3">

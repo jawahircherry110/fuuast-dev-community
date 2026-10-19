@@ -509,10 +509,10 @@ export default function AdminPage() {
                           <img
                             src={s.photoUrl}
                             alt={s.name}
-                            className="w-16 h-16 rounded-xl object-cover border border-amber-300 shadow-2xs"
+                            className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-amber-300 shadow-sm"
                           />
                         ) : (
-                          <div className="w-16 h-16 rounded-xl bg-amber-200 text-amber-800 flex items-center justify-center font-bold text-lg">
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-amber-200 text-amber-800 flex items-center justify-center font-bold text-xl sm:text-2xl shadow-sm">
                             {s.name
                               .split(" ")
                               .map((n) => n[0])
@@ -521,7 +521,7 @@ export default function AdminPage() {
                               .toUpperCase()}
                           </div>
                         )}
-                        <span className="absolute -bottom-1.5 -right-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500 text-white">
+                        <span className="absolute -bottom-1.5 -right-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500 text-white">
                           NEW
                         </span>
                       </div>
