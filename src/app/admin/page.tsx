@@ -14,6 +14,11 @@ import {
   Search,
   CheckCircle2,
   AlertCircle,
+  Clock,
+  XCircle,
+  Phone,
+  Check,
+  UserCheck,
 } from "lucide-react";
 import { StudentProfile } from "@/app/students/page";
 import { JobOpportunity } from "@/data/initialData";
@@ -28,8 +33,9 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Active Admin Tab
+  // Active Admin Tab & Student Sub-tab
   const [activeTab, setActiveTab] = useState<"students" | "messages" | "jobs">("students");
+  const [studentFilterTab, setStudentFilterTab] = useState<"pending" | "approved" | "all">("pending");
 
   // Admin Data State
   const [students, setStudents] = useState<StudentProfile[]>([]);
@@ -66,21 +72,21 @@ export default function AdminPage() {
   }, []);
 
   const loadAdminData = () => {
-    fetch("/api/profiles")
+    fetch("/api/profiles?all=true", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.profiles) setStudents(data.profiles);
       })
       .catch(() => {});
 
-    fetch("/api/contact")
+    fetch("/api/contact", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.messages) setMessages(data.messages);
       })
       .catch(() => {});
 
-    fetch("/api/jobs")
+    fetch("/api/jobs", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.jobs) setJobs(data.jobs);
@@ -121,8 +127,39 @@ export default function AdminPage() {
     setLoginPass("");
   };
 
+  // Student Profile Verification Handlers
+  const handleApproveStudent = async (id: string) => {
+    try {
+      const res = await fetch("/api/profiles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "approved" }),
+      });
+      if (res.ok) {
+        setStudents((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: "approved" } : s))
+        );
+      }
+    } catch {}
+  };
+
+  const handleRejectStudent = async (id: string) => {
+    try {
+      const res = await fetch("/api/profiles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "rejected" }),
+      });
+      if (res.ok) {
+        setStudents((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: "rejected" } : s))
+        );
+      }
+    } catch {}
+  };
+
   const handleDeleteStudent = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete profile for ${name}?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete profile for ${name}?`)) return;
     try {
       const res = await fetch(`/api/profiles?id=${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -179,8 +216,7 @@ export default function AdminPage() {
         });
         setTimeout(() => setJobSuccess(false), 3000);
       }
-    } catch {}
-    finally {
+    } catch {} finally {
       setIsSubmittingJob(false);
     }
   };
@@ -257,12 +293,22 @@ export default function AdminPage() {
     );
   }
 
-  // AUTHENTICATED ADMIN DASHBOARD
-  const filteredStudents = students.filter(
+  // Pending vs Approved student groups
+  const pendingStudents = students.filter((s) => s.status === "pending");
+  const approvedStudents = students.filter((s) => s.status === "approved" || !s.status);
+
+  const displayedStudents = (
+    studentFilterTab === "pending"
+      ? pendingStudents
+      : studentFilterTab === "approved"
+      ? approvedStudents
+      : students
+  ).filter(
     (s) =>
       s.name.toLowerCase().includes(searchStudent.toLowerCase()) ||
       s.rollNo.toLowerCase().includes(searchStudent.toLowerCase()) ||
-      s.department.toLowerCase().includes(searchStudent.toLowerCase())
+      s.department.toLowerCase().includes(searchStudent.toLowerCase()) ||
+      (s.email && s.email.toLowerCase().includes(searchStudent.toLowerCase()))
   );
 
   return (
@@ -277,7 +323,7 @@ export default function AdminPage() {
             FUUAST Islamabad Admin Portal
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage enrolled students, review contact submissions, and publish internship openings.
+            Verify student registrations, review contact submissions, and publish internship openings.
           </p>
         </div>
 
@@ -290,24 +336,63 @@ export default function AdminPage() {
       </div>
 
       {/* Metrics Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        {/* Pending Approvals Metric */}
         <div
-          onClick={() => setActiveTab("students")}
+          onClick={() => {
+            setActiveTab("students");
+            setStudentFilterTab("pending");
+          }}
           className={`p-4 rounded-xl border cursor-pointer transition-all ${
-            activeTab === "students" ? "bg-blue-50/70 border-blue-300 shadow-xs" : "bg-white border-slate-200 hover:border-slate-300"
+            activeTab === "students" && studentFilterTab === "pending"
+              ? "bg-amber-50/80 border-amber-300 shadow-xs"
+              : "bg-white border-slate-200 hover:border-slate-300"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Enrolled Students</span>
-            <Users className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-medium text-slate-500">Pending Approvals</span>
+            <Clock className="w-4 h-4 text-amber-600" />
           </div>
-          <div className="text-2xl font-semibold text-slate-900 mt-2">{students.length}</div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-2xl font-semibold text-amber-700">
+              {pendingStudents.length}
+            </span>
+            {pendingStudents.length > 0 && (
+              <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
+                Action Required
+              </span>
+            )}
+          </div>
         </div>
 
+        {/* Verified Students Metric */}
+        <div
+          onClick={() => {
+            setActiveTab("students");
+            setStudentFilterTab("approved");
+          }}
+          className={`p-4 rounded-xl border cursor-pointer transition-all ${
+            activeTab === "students" && studentFilterTab === "approved"
+              ? "bg-blue-50/70 border-blue-300 shadow-xs"
+              : "bg-white border-slate-200 hover:border-slate-300"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Verified Students</span>
+            <UserCheck className="w-4 h-4 text-blue-600" />
+          </div>
+          <div className="text-2xl font-semibold text-slate-900 mt-2">
+            {approvedStudents.length}
+          </div>
+        </div>
+
+        {/* Messages Metric */}
         <div
           onClick={() => setActiveTab("messages")}
           className={`p-4 rounded-xl border cursor-pointer transition-all ${
-            activeTab === "messages" ? "bg-blue-50/70 border-blue-300 shadow-xs" : "bg-white border-slate-200 hover:border-slate-300"
+            activeTab === "messages"
+              ? "bg-blue-50/70 border-blue-300 shadow-xs"
+              : "bg-white border-slate-200 hover:border-slate-300"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -317,28 +402,33 @@ export default function AdminPage() {
           <div className="text-2xl font-semibold text-slate-900 mt-2">{messages.length}</div>
         </div>
 
+        {/* Jobs Metric */}
         <div
           onClick={() => setActiveTab("jobs")}
           className={`p-4 rounded-xl border cursor-pointer transition-all ${
-            activeTab === "jobs" ? "bg-blue-50/70 border-blue-300 shadow-xs" : "bg-white border-slate-200 hover:border-slate-300"
+            activeTab === "jobs"
+              ? "bg-blue-50/70 border-blue-300 shadow-xs"
+              : "bg-white border-slate-200 hover:border-slate-300"
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Active Jobs & Internships</span>
+            <span className="text-xs font-medium text-slate-500">Active Jobs</span>
             <Briefcase className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-semibold text-slate-900 mt-2">{jobs.length}</div>
         </div>
       </div>
 
-      {/* TAB 1: ENROLLED STUDENTS */}
+      {/* TAB 1: STUDENT VERIFICATION & MANAGEMENT */}
       {activeTab === "students" && (
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-base font-semibold text-slate-900">Enrolled Student Profiles</h2>
+              <h2 className="text-base font-semibold text-slate-900">
+                Student Directory & Verification Desk
+              </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Students registered in the FUUAST Islamabad directory.
+                Review registrations, verify student identities & photos, and manage the live directory.
               </p>
             </div>
 
@@ -346,7 +436,7 @@ export default function AdminPage() {
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search by name, roll no..."
+                placeholder="Search by name, roll no, email..."
                 value={searchStudent}
                 onChange={(e) => setSearchStudent(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
@@ -354,67 +444,326 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 border-y border-slate-200 font-medium">
-                <tr>
-                  <th className="py-2.5 px-3">Student Name</th>
-                  <th className="py-2.5 px-3">Roll Number</th>
-                  <th className="py-2.5 px-3">Track</th>
-                  <th className="py-2.5 px-3">Semester</th>
-                  <th className="py-2.5 px-3">Email</th>
-                  <th className="py-2.5 px-3">LinkedIn</th>
-                  <th className="py-2.5 px-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredStudents.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-6 text-center text-slate-400">
-                      No student records found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredStudents.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/60">
-                      <td className="py-3 px-3 font-medium text-slate-900">{s.name}</td>
-                      <td className="py-3 px-3 font-mono text-slate-600">{s.rollNo}</td>
-                      <td className="py-3 px-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
-                          BS{s.department}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-slate-600">{s.semester}</td>
-                      <td className="py-3 px-3 text-slate-600">{s.email}</td>
-                      <td className="py-3 px-3">
-                        {s.linkedin ? (
-                          <a
-                            href={s.linkedin.startsWith("http") ? s.linkedin : `https://${s.linkedin}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-1 font-medium text-[11px]"
-                          >
-                            LinkedIn <ExternalLink className="w-3 h-3" />
-                          </a>
+          {/* Sub-Tabs: Pending Approvals, Verified, All */}
+          <div className="flex flex-wrap items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+            <button
+              onClick={() => setStudentFilterTab("pending")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                studentFilterTab === "pending"
+                  ? "bg-amber-600 text-white shadow-xs"
+                  : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              Pending Approvals ({pendingStudents.length})
+            </button>
+
+            <button
+              onClick={() => setStudentFilterTab("approved")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                studentFilterTab === "approved"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Verified / Live on Directory ({approvedStudents.length})
+            </button>
+
+            <button
+              onClick={() => setStudentFilterTab("all")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                studentFilterTab === "all"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              All Registrations ({students.length})
+            </button>
+          </div>
+
+          {/* VIEW 1: PENDING VERIFICATION CARDS */}
+          {studentFilterTab === "pending" && (
+            <div className="space-y-4">
+              {displayedStudents.length === 0 ? (
+                <div className="py-12 text-center">
+                  <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+                  <h4 className="text-sm font-semibold text-slate-900">
+                    No Pending Requests
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1">
+                    All student registrations have been reviewed and verified!
+                  </p>
+                </div>
+              ) : (
+                displayedStudents.map((s) => (
+                  <div
+                    key={s.id}
+                    className="p-5 rounded-xl border border-amber-200 bg-amber-50/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Photo Thumbnail */}
+                      <div className="relative shrink-0">
+                        {s.photoUrl ? (
+                          <img
+                            src={s.photoUrl}
+                            alt={s.name}
+                            className="w-16 h-16 rounded-xl object-cover border border-amber-300 shadow-2xs"
+                          />
                         ) : (
-                          <span className="text-slate-400 text-[11px]">—</span>
+                          <div className="w-16 h-16 rounded-xl bg-amber-200 text-amber-800 flex items-center justify-center font-bold text-lg">
+                            {s.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .substring(0, 2)
+                              .toUpperCase()}
+                          </div>
                         )}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <button
-                          onClick={() => handleDeleteStudent(s.id, s.name)}
-                          className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                          title="Delete Student"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <span className="absolute -bottom-1.5 -right-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500 text-white">
+                          NEW
+                        </span>
+                      </div>
+
+                      {/* Info */}
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-sm font-semibold text-slate-900">{s.name}</h3>
+                          <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-white text-slate-800 border border-slate-200">
+                            {s.rollNo}
+                          </span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">
+                            BS{s.department}
+                          </span>
+                          <span className="text-xs text-slate-500">• {s.semester}</span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-600">
+                          <a
+                            href={`mailto:${s.email}`}
+                            className="hover:text-blue-600 flex items-center gap-1"
+                          >
+                            <Mail className="w-3 h-3 text-slate-400" />
+                            {s.email}
+                          </a>
+                          {s.phone && (
+                            <a
+                              href={`tel:${s.phone}`}
+                              className="hover:text-blue-600 flex items-center gap-1"
+                            >
+                              <Phone className="w-3 h-3 text-slate-400" />
+                              {s.phone}
+                            </a>
+                          )}
+                        </div>
+
+                        {s.bio && (
+                          <p className="text-xs text-slate-600 mt-2 max-w-xl line-clamp-2">
+                            {s.bio}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          {s.skills &&
+                            s.skills.map((sk, idx) => (
+                              <span
+                                key={idx}
+                                className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-white text-slate-700 border border-slate-200"
+                              >
+                                {sk}
+                              </span>
+                            ))}
+
+                          {s.linkedin && (
+                            <a
+                              href={s.linkedin.startsWith("http") ? s.linkedin : `https://${s.linkedin}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 hover:underline flex items-center gap-1"
+                            >
+                              LinkedIn <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          )}
+
+                          {s.github && (
+                            <a
+                              href={s.github.startsWith("http") ? s.github : `https://${s.github}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 hover:underline flex items-center gap-1"
+                            >
+                              GitHub <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2 self-end md:self-center shrink-0">
+                      <button
+                        onClick={() => handleApproveStudent(s.id)}
+                        className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-xs transition-colors"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        Approve & Publish
+                      </button>
+
+                      <button
+                        onClick={() => handleRejectStudent(s.id)}
+                        className="px-3 py-2 rounded-lg text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+                        title="Decline Profile"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteStudent(s.id, s.name)}
+                        className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        title="Delete Request"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* VIEW 2 & 3: APPROVED AND ALL STUDENTS TABLE */}
+          {studentFilterTab !== "pending" && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 border-y border-slate-200 font-medium">
+                  <tr>
+                    <th className="py-2.5 px-3">Student</th>
+                    <th className="py-2.5 px-3">Roll Number</th>
+                    <th className="py-2.5 px-3">Track</th>
+                    <th className="py-2.5 px-3">Semester</th>
+                    <th className="py-2.5 px-3">Contact</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {displayedStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-slate-400">
+                        No student records found matching filter.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    displayedStudents.map((s) => (
+                      <tr key={s.id} className="hover:bg-slate-50/60">
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-2.5">
+                            {s.photoUrl ? (
+                              <img
+                                src={s.photoUrl}
+                                alt={s.name}
+                                className="w-8 h-8 rounded-lg object-cover border border-slate-200 shrink-0"
+                              />
+                            ) : (
+                              <div
+                                className={`w-8 h-8 rounded-lg ${
+                                  s.avatarBg || "bg-blue-600"
+                                } text-white flex items-center justify-center font-bold text-xs shrink-0`}
+                              >
+                                {s.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .substring(0, 2)
+                                  .toUpperCase()}
+                              </div>
+                            )}
+                            <div>
+                              <span className="font-semibold text-slate-900 block leading-tight">
+                                {s.name}
+                              </span>
+                              {s.linkedin && (
+                                <a
+                                  href={s.linkedin.startsWith("http") ? s.linkedin : `https://${s.linkedin}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 mt-0.5"
+                                >
+                                  LinkedIn <ExternalLink className="w-2 h-2" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 font-mono text-slate-600">{s.rollNo}</td>
+                        <td className="py-3 px-3">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
+                            BS{s.department}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-slate-600">{s.semester}</td>
+                        <td className="py-3 px-3 text-slate-600">
+                          <div>{s.email}</div>
+                          {s.phone && (
+                            <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                              {s.phone}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-3">
+                          {s.status === "approved" || !s.status ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              Approved
+                            </span>
+                          ) : s.status === "rejected" ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                              Rejected
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {s.status === "pending" && (
+                              <button
+                                onClick={() => handleApproveStudent(s.id)}
+                                className="px-2 py-1 rounded text-[11px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700"
+                                title="Approve"
+                              >
+                                Approve
+                              </button>
+                            )}
+
+                            {s.status === "approved" && (
+                              <button
+                                onClick={() => handleRejectStudent(s.id)}
+                                className="px-2 py-1 rounded text-[11px] font-medium text-slate-600 hover:text-amber-700 hover:bg-amber-50"
+                                title="Revoke Approval"
+                              >
+                                Revoke
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => handleDeleteStudent(s.id, s.name)}
+                              className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Delete Student"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

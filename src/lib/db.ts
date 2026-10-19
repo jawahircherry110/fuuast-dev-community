@@ -1,6 +1,7 @@
 import mysql from "mysql2/promise";
 import fs from "fs/promises";
 import path from "path";
+import bcrypt from "bcryptjs";
 import { initialJobs, JobOpportunity } from "@/data/initialData";
 
 const localDbPath = path.join(process.cwd(), "src", "data", "db.json");
@@ -40,12 +41,23 @@ async function ensureTables(p: mysql.Pool) {
         bio TEXT,
         skills TEXT,
         email VARCHAR(255) NOT NULL,
+        phone VARCHAR(64),
+        password VARCHAR(255),
+        photo_url LONGTEXT,
+        status VARCHAR(32) DEFAULT 'pending',
         github VARCHAR(255),
         linkedin VARCHAR(255),
         avatar_bg VARCHAR(32),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
+
+    // Ensure columns exist on tables created in previous versions
+    try { await p.query("ALTER TABLE student_profiles ADD COLUMN phone VARCHAR(64)"); } catch {}
+    try { await p.query("ALTER TABLE student_profiles ADD COLUMN password VARCHAR(255)"); } catch {}
+    try { await p.query("ALTER TABLE student_profiles ADD COLUMN photo_url LONGTEXT"); } catch {}
+    try { await p.query("ALTER TABLE student_profiles ADD COLUMN status VARCHAR(32) DEFAULT 'pending'"); } catch {}
+    try { await p.query("UPDATE student_profiles SET status = 'approved' WHERE status IS NULL OR status = ''"); } catch {}
 
     await p.query(`
       CREATE TABLE IF NOT EXISTS contact_messages (
@@ -106,13 +118,17 @@ async function ensureTables(p: mysql.Pool) {
 /* ==========================================================
    PROFILES
 ========================================================== */
-export async function getProfiles() {
+export async function getProfiles(onlyApproved: boolean = true) {
   try {
     const p = getPool();
     await ensureTables(p);
-    const [rows] = await p.query<any[]>(
-      "SELECT * FROM student_profiles ORDER BY created_at DESC"
-    );
+
+    let query = "SELECT * FROM student_profiles ORDER BY created_at DESC";
+    if (onlyApproved) {
+      query = "SELECT * FROM student_profiles WHERE status = 'approved' OR status IS NULL OR status = '' ORDER BY created_at DESC";
+    }
+
+    const [rows] = await p.query<any[]>(query);
 
     if (Array.isArray(rows)) {
       return rows.map((r) => ({
@@ -121,12 +137,16 @@ export async function getProfiles() {
         rollNo: r.roll_no,
         department: r.department,
         semester: r.semester,
-        bio: r.bio,
+        bio: r.bio || "",
         skills: r.skills ? r.skills.split(",").map((s: string) => s.trim()) : [],
         email: r.email,
-        github: r.github,
-        linkedin: r.linkedin,
+        phone: r.phone || "",
+        photoUrl: r.photo_url || "",
+        status: r.status || "approved",
+        github: r.github || "",
+        linkedin: r.linkedin || "",
         avatarBg: r.avatar_bg || "bg-blue-600",
+        createdAt: r.created_at,
       }));
     }
   } catch {}
@@ -134,13 +154,25 @@ export async function getProfiles() {
   try {
     const fileData = await fs.readFile(localDbPath, "utf-8");
     const json = JSON.parse(fileData);
-    return json.profiles || [];
+    const list = (json.profiles || []).map((r: any) => ({
+      ...r,
+      rollNo: r.rollNo || r.roll_no,
+      status: r.status || "approved",
+      photoUrl: r.photoUrl || r.photo_url || "",
+      phone: r.phone || "",
+    }));
+
+    if (onlyApproved) {
+      return list.filter((p: any) => p.status === "approved" || !p.status);
+    }
+    return list;
   } catch {
     return [];
   }
 }
 
 export async function saveProfile(profile: {
+  id?: string;
   name: string;
   rollNo: string;
   department: string;
@@ -148,10 +180,14 @@ export async function saveProfile(profile: {
   bio?: string;
   skills?: string | string[];
   email: string;
+  phone?: string;
+  password?: string;
+  photoUrl?: string;
+  status?: string;
   github?: string;
   linkedin?: string;
 }) {
-  const id = `std-${Date.now()}`;
+  const id = profile.id || `std-${Date.now()}`;
   const skillsStr = Array.isArray(profile.skills)
     ? profile.skills.join(", ")
     : profile.skills || "";
@@ -161,27 +197,46 @@ export async function saveProfile(profile: {
       : profile.department === "SE"
       ? "bg-sky-600"
       : "bg-indigo-600";
+  const status = profile.status || "pending";
+  const rollNo = profile.rollNo.toUpperCase().trim();
+
+  let hashedPassword: string | null = null;
+  if (profile.password && profile.password.trim().length > 0) {
+    try {
+      hashedPassword = await bcrypt.hash(profile.password.trim(), 10);
+    } catch {
+      hashedPassword = profile.password.trim();
+    }
+  }
 
   try {
     const p = getPool();
     await ensureTables(p);
     await p.query(
       `INSERT INTO student_profiles 
-       (id, name, roll_no, department, semester, bio, skills, email, github, linkedin, avatar_bg) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       (id, name, roll_no, department, semester, bio, skills, email, phone, password, photo_url, status, github, linkedin, avatar_bg) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE 
        name = VALUES(name), department = VALUES(department), semester = VALUES(semester), 
        bio = VALUES(bio), skills = VALUES(skills), email = VALUES(email), 
+       phone = COALESCE(VALUES(phone), phone),
+       password = COALESCE(VALUES(password), password),
+       photo_url = COALESCE(VALUES(photo_url), photo_url),
+       status = VALUES(status),
        github = VALUES(github), linkedin = VALUES(linkedin)`,
       [
         id,
-        profile.name,
-        profile.rollNo.toUpperCase(),
+        profile.name.trim(),
+        rollNo,
         profile.department,
         profile.semester,
         profile.bio || "",
         skillsStr,
-        profile.email,
+        profile.email.trim(),
+        profile.phone ? profile.phone.trim() : null,
+        hashedPassword,
+        profile.photoUrl || null,
+        status,
         profile.github || "",
         profile.linkedin || "",
         avatarBg,
@@ -191,26 +246,131 @@ export async function saveProfile(profile: {
 
   const newProfile = {
     id,
-    name: profile.name,
-    rollNo: profile.rollNo.toUpperCase(),
+    name: profile.name.trim(),
+    rollNo,
     department: profile.department,
     semester: profile.semester,
     bio: profile.bio || "",
     skills: skillsStr ? skillsStr.split(",").map((s) => s.trim()) : [],
-    email: profile.email,
+    email: profile.email.trim(),
+    phone: profile.phone ? profile.phone.trim() : "",
+    photoUrl: profile.photoUrl || "",
+    status,
     github: profile.github || "",
     linkedin: profile.linkedin || "",
     avatarBg,
+    password: hashedPassword,
   };
 
   try {
     const fileData = await fs.readFile(localDbPath, "utf-8");
     const json = JSON.parse(fileData);
-    json.profiles = [newProfile, ...(json.profiles || []).filter((p: any) => p.rollNo !== newProfile.rollNo)];
+    json.profiles = [
+      newProfile,
+      ...(json.profiles || []).filter(
+        (p: any) => (p.rollNo || p.roll_no) !== rollNo && p.id !== id
+      ),
+    ];
     await fs.writeFile(localDbPath, JSON.stringify(json, null, 2), "utf-8");
   } catch {}
 
-  return { profile: newProfile };
+  const { password: _, ...safeProfile } = newProfile;
+  return { profile: safeProfile };
+}
+
+export async function updateProfileStatus(id: string, status: "approved" | "rejected" | "pending") {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query("UPDATE student_profiles SET status = ? WHERE id = ?", [status, id]);
+  } catch {}
+
+  try {
+    const fileData = await fs.readFile(localDbPath, "utf-8");
+    const json = JSON.parse(fileData);
+    if (Array.isArray(json.profiles)) {
+      json.profiles = json.profiles.map((p: any) =>
+        p.id === id ? { ...p, status } : p
+      );
+      await fs.writeFile(localDbPath, JSON.stringify(json, null, 2), "utf-8");
+    }
+  } catch {}
+
+  return { success: true, id, status };
+}
+
+export async function findStudentAuth(identifier: string, passwordAttempt: string) {
+  const cleanId = identifier.trim().toLowerCase();
+  let student: any = null;
+
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    const [rows] = await p.query<any[]>(
+      "SELECT * FROM student_profiles WHERE LOWER(email) = ? OR phone = ? OR UPPER(roll_no) = ? LIMIT 1",
+      [cleanId, identifier.trim(), identifier.trim().toUpperCase()]
+    );
+    if (Array.isArray(rows) && rows.length > 0) {
+      student = rows[0];
+    }
+  } catch {}
+
+  if (!student) {
+    try {
+      const fileData = await fs.readFile(localDbPath, "utf-8");
+      const json = JSON.parse(fileData);
+      student = (json.profiles || []).find(
+        (p: any) =>
+          (p.email && p.email.toLowerCase() === cleanId) ||
+          (p.phone && p.phone === identifier.trim()) ||
+          ((p.rollNo || p.roll_no) && (p.rollNo || p.roll_no).toUpperCase() === identifier.trim().toUpperCase())
+      );
+    } catch {}
+  }
+
+  if (!student) {
+    return { error: "No student profile found with this email, phone, or roll number." };
+  }
+
+  if (student.password) {
+    let isMatch = false;
+    try {
+      isMatch = await bcrypt.compare(passwordAttempt, student.password);
+    } catch {
+      isMatch = student.password === passwordAttempt;
+    }
+    if (!isMatch && student.password === passwordAttempt) {
+      isMatch = true;
+    }
+    if (!isMatch) {
+      return { error: "Incorrect password. Please verify and try again." };
+    }
+  }
+
+  return {
+    success: true,
+    profile: {
+      id: student.id,
+      name: student.name,
+      rollNo: student.roll_no || student.rollNo,
+      department: student.department,
+      semester: student.semester,
+      bio: student.bio || "",
+      skills: student.skills
+        ? Array.isArray(student.skills)
+          ? student.skills
+          : student.skills.split(",").map((s: string) => s.trim())
+        : [],
+      email: student.email,
+      phone: student.phone || "",
+      photoUrl: student.photo_url || student.photoUrl || "",
+      status: student.status || "approved",
+      github: student.github || "",
+      linkedin: student.linkedin || "",
+      avatarBg: student.avatar_bg || student.avatarBg || "bg-blue-600",
+      createdAt: student.created_at || student.createdAt,
+    },
+  };
 }
 
 export async function deleteProfile(id: string) {
