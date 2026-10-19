@@ -80,7 +80,7 @@ export default function AboutPage() {
             </p>
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <MapPin className="w-3.5 h-3.5 text-blue-600" />
-              <span>Sector G-7/1, Islamabad, Pakistan</span>
+              <span>Near Bahria Enclave, Islamabad, Pakistan</span>
             </div>
           </div>
 

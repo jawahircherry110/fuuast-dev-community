@@ -1,11 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import { Code, GraduationCap, MapPin, Mail, ExternalLink } from "lucide-react";
+import { Code, MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-400 py-12 px-4 text-xs border-t border-slate-800">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         {/* Brand */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-white font-semibold text-sm">
@@ -20,7 +20,7 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-1.5 text-slate-400 text-[11px]">
             <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-            <span>G-7/1, Islamabad, Pakistan</span>
+            <span>Near Bahria Enclave, Islamabad, Pakistan</span>
           </div>
         </div>
 
@@ -58,11 +58,6 @@ export default function Footer() {
                 Contact Coordinators
               </Link>
             </li>
-            <li>
-              <Link href="/admin" className="text-slate-500 hover:text-slate-300 transition-colors">
-                Admin Portal
-              </Link>
-            </li>
           </ul>
         </div>
 
@@ -76,22 +71,6 @@ export default function Footer() {
             <li>Final Year Projects (FYP)</li>
             <li>Peer Mentorship & Study Circles</li>
           </ul>
-        </div>
-
-        {/* Domain & Deployment */}
-        <div>
-          <h4 className="text-white font-semibold text-xs mb-3">Live Domain</h4>
-          <p className="text-[11px] text-slate-400 leading-relaxed mb-2">
-            Hosted on Hostinger Business Web Hosting:
-          </p>
-          <a
-            href="https://fuuastdevcommunity.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 font-mono text-xs flex items-center gap-1"
-          >
-            fuuastdevcommunity.com <ExternalLink className="w-3 h-3" />
-          </a>
         </div>
       </div>
 

@@ -25,7 +25,7 @@ import { JobOpportunity } from "@/data/initialData";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
   // Login form state
   const [loginUser, setLoginUser] = useState("");
@@ -60,15 +60,10 @@ export default function AdminPage() {
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/check")
-      .then((res) => {
-        if (res.ok) {
-          setIsAuthenticated(true);
-          loadAdminData();
-        }
-      })
-      .catch(() => {})
-      .finally(() => setIsCheckingAuth(false));
+    // Require password every time someone navigates or returns to the admin URL
+    setIsAuthenticated(false);
+    setIsCheckingAuth(false);
+    fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
   }, []);
 
   const loadAdminData = () => {

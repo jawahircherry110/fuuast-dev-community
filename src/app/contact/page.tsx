@@ -76,7 +76,7 @@ export default function ContactPage() {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                 <span>
-                  Federal Urdu University of Arts, Science and Technology, Sector G-7/1, Islamabad, Pakistan
+                  Federal Urdu University of Arts, Science and Technology, Near Bahria Enclave, Islamabad, Pakistan
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
