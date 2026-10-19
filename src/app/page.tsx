@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { JobOpportunity } from "@/data/initialData";
+import HeroCodeBlock from "@/components/HeroCodeBlock";
 
 export default function Home() {
   const [featuredJobs, setFeaturedJobs] = useState<JobOpportunity[]>([]);
@@ -35,42 +36,69 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative pt-14 pb-20 bg-gradient-to-b from-blue-50/50 via-white to-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-medium mb-6">
-            <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
-            Federal Urdu University of Arts, Science & Technology • Islamabad Campus
-          </div>
+      <section className="relative pt-12 pb-16 lg:py-20 bg-gradient-to-b from-blue-50/50 via-white to-white border-b border-slate-100 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left Column: Text Content */}
+            <div className="lg:col-span-6 text-left space-y-5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-semibold">
+                <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
+                <span>FUUAST Islamabad • Near Bahria Enclave</span>
+              </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-tight max-w-3xl mx-auto">
-            Connecting <span className="text-blue-600">CS, SE & AI</span> Students for Collaboration & Careers
-          </h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+                Connecting <span className="text-blue-600">CS, SE & AI</span> Students for Collaboration & Careers
+              </h1>
 
-          <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            The dedicated academic and developer platform for students of Computer Science,
-            Software Engineering, and Artificial Intelligence at FUUAST Islamabad. Connect with peers,
-            find FYP teammates, and explore curated internships.
-          </p>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+                The official academic and peer community for Computer Science, Software Engineering,
+                and Artificial Intelligence students at FUUAST Islamabad. Connect with verified peers,
+                master roadmap.sh-aligned skills, find FYP teammates, and discover internships.
+              </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/students"
-              className="px-5 py-2.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-xs flex items-center gap-1.5"
-            >
-              <Users className="w-3.5 h-3.5" /> Explore Student Directory
-            </Link>
-            <Link
-              href="/jobs"
-              className="px-5 py-2.5 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors flex items-center gap-1.5"
-            >
-              <Briefcase className="w-3.5 h-3.5 text-blue-600" /> Browse Jobs & Internships
-            </Link>
-            <Link
-              href="/about"
-              className="px-5 py-2.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-            >
-              About the Community
-            </Link>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Link
+                  href="/students"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <Users className="w-3.5 h-3.5" /> Explore Students
+                </Link>
+                <Link
+                  href="/departments"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 transition-all flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Tracks & Roadmaps
+                </Link>
+                <Link
+                  href="/jobs"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1.5"
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-slate-600" /> Browse Jobs
+                </Link>
+              </div>
+
+              {/* Highlights Row */}
+              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-500 font-medium">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span>3 Specialized Tracks</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Verified Profiles</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span>FYP Study Circles</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Code Function Window */}
+            <div className="lg:col-span-6 w-full">
+              <HeroCodeBlock />
+            </div>
           </div>
         </div>
       </section>
