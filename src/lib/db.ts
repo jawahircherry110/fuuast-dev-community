@@ -57,7 +57,6 @@ async function ensureTables(p: mysql.Pool) {
     try { await p.query("ALTER TABLE student_profiles ADD COLUMN password VARCHAR(255)"); } catch {}
     try { await p.query("ALTER TABLE student_profiles ADD COLUMN photo_url LONGTEXT"); } catch {}
     try { await p.query("ALTER TABLE student_profiles ADD COLUMN status VARCHAR(32) DEFAULT 'pending'"); } catch {}
-    try { await p.query("UPDATE student_profiles SET status = 'approved' WHERE status IS NULL OR status = ''"); } catch {}
 
     await p.query(`
       CREATE TABLE IF NOT EXISTS contact_messages (
@@ -125,7 +124,7 @@ export async function getProfiles(onlyApproved: boolean = true) {
 
     let query = "SELECT * FROM student_profiles ORDER BY created_at DESC";
     if (onlyApproved) {
-      query = "SELECT * FROM student_profiles WHERE status = 'approved' OR status IS NULL OR status = '' ORDER BY created_at DESC";
+      query = "SELECT * FROM student_profiles WHERE status = 'approved' ORDER BY created_at DESC";
     }
 
     const [rows] = await p.query<any[]>(query);
@@ -142,7 +141,7 @@ export async function getProfiles(onlyApproved: boolean = true) {
         email: r.email,
         phone: r.phone || "",
         photoUrl: r.photo_url || "",
-        status: r.status || "approved",
+        status: r.status || "pending",
         github: r.github || "",
         linkedin: r.linkedin || "",
         avatarBg: r.avatar_bg || "bg-blue-600",
@@ -157,13 +156,13 @@ export async function getProfiles(onlyApproved: boolean = true) {
     const list = (json.profiles || []).map((r: any) => ({
       ...r,
       rollNo: r.rollNo || r.roll_no,
-      status: r.status || "approved",
+      status: r.status || "pending",
       photoUrl: r.photoUrl || r.photo_url || "",
       phone: r.phone || "",
     }));
 
     if (onlyApproved) {
-      return list.filter((p: any) => p.status === "approved" || !p.status);
+      return list.filter((p: any) => p.status === "approved");
     }
     return list;
   } catch {

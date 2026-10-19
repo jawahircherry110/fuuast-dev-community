@@ -50,7 +50,10 @@ export default function StudentsPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.profiles && Array.isArray(data.profiles)) {
-          setProfiles(data.profiles);
+          const approvedOnly = data.profiles.filter(
+            (p: StudentProfile) => p.status === "approved"
+          );
+          setProfiles(approvedOnly);
         }
       })
       .catch(() => {});
@@ -70,6 +73,7 @@ export default function StudentsPage() {
   };
 
   const filtered = profiles.filter((p) => {
+    if (p.status && p.status !== "approved") return false;
     const matchesDept = deptFilter === "All" || p.department === deptFilter;
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

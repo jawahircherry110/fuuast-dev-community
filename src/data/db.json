@@ -15,7 +15,8 @@
       "email": "jawahircherry4@gmail.com",
       "github": "",
       "linkedin": "",
-      "avatarBg": "bg-blue-600"
+      "avatarBg": "bg-blue-600",
+      "status": "pending"
     },
     {
       "id": "p1",
@@ -37,7 +38,8 @@
       ],
       "openToCollaborate": true,
       "email": "hamza.tariq@fuuast.edu.pk",
-      "avatarBg": "bg-blue-600"
+      "avatarBg": "bg-blue-600",
+      "status": "approved"
     },
     {
       "id": "p2",
@@ -58,7 +60,8 @@
       ],
       "openToCollaborate": true,
       "email": "ayesha.malik@fuuast.edu.pk",
-      "avatarBg": "bg-indigo-600"
+      "avatarBg": "bg-indigo-600",
+      "status": "approved"
     },
     {
       "id": "p3",
@@ -79,7 +82,8 @@
       ],
       "openToCollaborate": true,
       "email": "bilal.khan@fuuast.edu.pk",
-      "avatarBg": "bg-sky-600"
+      "avatarBg": "bg-sky-600",
+      "status": "approved"
     }
   ]
 }

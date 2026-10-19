@@ -17,6 +17,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FUUAST Islamabad Dev Community | CS, SE & AI Student Portal",
   description: "Official student collaboration, project sharing, internships, placements, and developer community for Computer Science, Software Engineering, and Artificial Intelligence students at FUUAST Islamabad.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
