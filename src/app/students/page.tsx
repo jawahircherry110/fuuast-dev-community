@@ -181,14 +181,14 @@ export default function StudentsPage() {
     <div className="py-12 bg-white">
       {/* Header */}
       <div className="max-w-4xl mx-auto px-4 text-center mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-3">
           <Users className="w-3.5 h-3.5 text-blue-600" />
           Community Roster
         </div>
-        <h1 className="text-3xl sm:text-4xl font-semibold text-slate-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
           FUUAST Islamabad Student Developers
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
           Connect with verified peers across BS Computer Science, Software Engineering, and Artificial Intelligence
           for collaborative coding, study groups, and Final Year Projects.
         </p>
@@ -222,12 +222,12 @@ export default function StudentsPage() {
                   )}
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-base font-semibold text-slate-900">{myProfile.name}</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-slate-900">{myProfile.name}</h2>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                         <ShieldCheck className="w-3 h-3 text-emerald-600" /> Verified Student Profile
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm text-slate-500 mt-0.5">
                       BS{myProfile.department} • {myProfile.semester} • Roll No: {myProfile.rollNo}
                     </p>
                   </div>
@@ -251,7 +251,7 @@ export default function StudentsPage() {
               </div>
 
               {myProfile.bio && (
-                <p className="text-xs text-slate-700 leading-relaxed max-w-2xl mb-3">
+                <p className="text-sm text-slate-700 leading-relaxed max-w-2xl mb-3">
                   {myProfile.bio}
                 </p>
               )}
@@ -314,10 +314,10 @@ export default function StudentsPage() {
                   <AlertCircle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-rose-900">
+                  <h3 className="text-base font-bold text-rose-900">
                     Profile Verification Not Approved
                   </h3>
-                  <p className="text-xs text-rose-700 mt-0.5">
+                  <p className="text-sm text-rose-700 mt-0.5">
                     Your registration could not be verified by the admin. Please update your details or contact the coordinator.
                   </p>
                 </div>
@@ -360,12 +360,12 @@ export default function StudentsPage() {
                   )}
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-base font-semibold text-slate-900">{myProfile.name}</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-slate-900">{myProfile.name}</h2>
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
                         <Clock className="w-3 h-3 text-amber-600" /> Verification Pending
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 mt-0.5">
+                    <p className="text-sm text-slate-600 mt-0.5">
                       BS{myProfile.department} • {myProfile.semester} • Roll No: {myProfile.rollNo}
                     </p>
                   </div>
@@ -388,7 +388,7 @@ export default function StudentsPage() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/80 border border-amber-200/80 text-xs text-amber-800 flex items-start gap-2.5">
+              <div className="p-3.5 rounded-xl bg-white/80 border border-amber-200/80 text-sm text-amber-800 flex items-start gap-2.5">
                 <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
                   <strong>Awaiting Admin Review:</strong> Your registration has been submitted
@@ -402,16 +402,16 @@ export default function StudentsPage() {
           /* NOT LOGGED IN BANNER */
           <div className="mb-10 p-6 rounded-2xl bg-blue-50/70 border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-left">
-              <h2 className="text-base font-semibold text-slate-900">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
                 Are you a CS, SE or AI student at FUUAST Islamabad?
               </h2>
-              <p className="text-xs text-slate-600 mt-0.5">
+              <p className="text-sm text-slate-600 mt-1">
                 Register with your email or phone & upload your photo. Once verified by admin, your profile card goes live.
               </p>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs whitespace-nowrap flex items-center gap-1.5"
+              className="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs whitespace-nowrap flex items-center gap-1.5"
             >
               <User className="w-3.5 h-3.5" /> Student Sign Up / Login
             </button>
@@ -488,7 +488,7 @@ export default function StudentsPage() {
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <h3 className="text-sm sm:text-base font-semibold text-slate-900 leading-snug">
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                           {student.name}
                         </h3>
                         <span title="Verified FUUAST Student">
@@ -506,7 +506,7 @@ export default function StudentsPage() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-3">
+                  <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed mb-3">
                     {student.bio || "Student at FUUAST Islamabad."}
                   </p>
 

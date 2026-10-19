@@ -52,14 +52,14 @@ export default function ContactPage() {
     <div className="py-12 bg-white">
       {/* Header */}
       <div className="max-w-4xl mx-auto px-4 text-center mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-3">
           <Mail className="w-3.5 h-3.5 text-blue-600" />
           Get in Touch
         </div>
-        <h1 className="text-3xl sm:text-4xl font-semibold text-slate-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
           Contact Community Coordinators
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
           Have an inquiry regarding student profiles, FYP collaboration, posting job openings, or community
           events at FUUAST Islamabad? Send us a message below.
         </p>
@@ -69,10 +69,10 @@ export default function ContactPage() {
         {/* Contact Information Sidebar */}
         <div className="space-y-4">
           <div className="p-6 rounded-xl border border-slate-200 bg-slate-50/70">
-            <h2 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
               <GraduationCap className="w-4 h-4 text-blue-600" /> Campus Details
             </h2>
-            <div className="space-y-3 text-xs text-slate-600">
+            <div className="space-y-3 text-sm text-slate-600">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                 <span>
@@ -91,8 +91,8 @@ export default function ContactPage() {
           </div>
 
           <div className="p-6 rounded-xl border border-blue-100 bg-blue-50/50">
-            <h2 className="text-sm font-semibold text-blue-900 mb-1">Looking to post an opening?</h2>
-            <p className="text-xs text-blue-700 leading-relaxed mb-3">
+            <h2 className="text-base sm:text-lg font-bold text-blue-900 mb-1.5">Looking to post an opening?</h2>
+            <p className="text-sm text-blue-800 leading-relaxed">
               Recruiters and alumni can send job/internship details directly through this form. Our team will review and publish it within 24 hours.
             </p>
           </div>
@@ -104,13 +104,13 @@ export default function ContactPage() {
             {success ? (
               <div className="py-10 text-center">
                 <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
-                <h3 className="text-base font-semibold text-slate-900">Message Received!</h3>
-                <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">Message Received!</h3>
+                <p className="text-sm text-slate-600 mt-1 max-w-md mx-auto leading-relaxed">
                   Thank you for reaching out. Your message has been saved and forwarded to the FUUAST Islamabad community coordinators.
                 </p>
                 <button
                   onClick={() => setSuccess(false)}
-                  className="mt-5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                  className="mt-5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
                 >
                   Send another message
                 </button>
@@ -119,7 +119,7 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
                       Your Full Name *
                     </label>
                     <input
@@ -128,11 +128,11 @@ export default function ContactPage() {
                       placeholder="e.g. Asad Ullah"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
                       Email Address *
                     </label>
                     <input
@@ -141,20 +141,20 @@ export default function ContactPage() {
                       placeholder="name@student.fuuast.edu.pk"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
                       Department / Role
                     </label>
                     <select
                       value={form.department}
                       onChange={(e) => setForm({ ...form, department: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
                     >
                       <option value="CS">Computer Science (BSCS)</option>
                       <option value="SE">Software Engineering (BSSE)</option>
@@ -165,7 +165,7 @@ export default function ContactPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">
                       Subject
                     </label>
                     <input
@@ -173,13 +173,13 @@ export default function ContactPage() {
                       placeholder="e.g. FYP inquiry, internship, or event"
                       value={form.subject}
                       onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">
                     Your Message *
                   </label>
                   <textarea
@@ -188,7 +188,7 @@ export default function ContactPage() {
                     placeholder="How can we assist you or how would you like to collaborate?"
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
                   />
                 </div>
 
@@ -196,7 +196,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
                   >
                     <Send className="w-3.5 h-3.5" />
                     {isSubmitting ? "Sending..." : "Submit Message"}

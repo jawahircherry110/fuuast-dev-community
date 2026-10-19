@@ -47,14 +47,14 @@ export default function JobsPage() {
     <div className="py-12 bg-white">
       {/* Header */}
       <div className="max-w-4xl mx-auto px-4 text-center mb-10">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-3">
           <Briefcase className="w-3.5 h-3.5 text-blue-600" />
           Career Hub
         </div>
-        <h1 className="text-3xl sm:text-4xl font-semibold text-slate-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
           Jobs & Internships for FUUAST Students
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
           Curated opportunities in Islamabad, Rawalpindi, and remote software houses specifically tailored
           for Computer Science, Software Engineering, and AI students.
         </p>
@@ -139,8 +139,8 @@ export default function JobsPage() {
                     <span className="text-[11px] text-slate-400">{job.postedDate}</span>
                   </div>
 
-                  <h2 className="text-sm font-semibold text-slate-900 leading-snug">{job.title}</h2>
-                  <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 mb-3">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">{job.title}</h2>
+                  <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-500 mt-1 mb-3">
                     <span className="flex items-center gap-1">
                       <Building2 className="w-3.5 h-3.5 text-slate-400" /> {job.company}
                     </span>
@@ -149,12 +149,12 @@ export default function JobsPage() {
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                  <p className="text-sm text-slate-600 leading-relaxed mb-4">
                     {job.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm">
                   <div>
                     <span className="text-[10px] text-slate-400 block uppercase font-medium">Stipend</span>
                     <span className="font-semibold text-slate-800">{job.stipend}</span>
@@ -175,16 +175,16 @@ export default function JobsPage() {
         </div>
 
         {/* Employer notice card */}
-        <div className="p-6 rounded-xl border border-slate-200 bg-slate-50 text-center text-xs text-slate-600">
-          <p className="font-medium text-slate-900 mb-1">
+        <div className="p-6 rounded-xl border border-slate-200 bg-slate-50 text-center text-sm text-slate-600">
+          <p className="text-base font-bold text-slate-900 mb-1.5">
             Are you a recruiter, tech lead, or FUUAST alumnus looking to hire?
           </p>
-          <p className="text-slate-500 mb-3">
+          <p className="text-sm text-slate-600 mb-4 max-w-xl mx-auto leading-relaxed">
             Send your internship or job opening details to the community coordinators to get it featured.
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-blue-700 border border-slate-200 hover:bg-slate-100 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-white text-blue-700 border border-slate-200 hover:bg-slate-100 transition-colors shadow-2xs"
           >
             <Mail className="w-3.5 h-3.5 text-blue-600" /> Contact to Post an Opening
           </Link>

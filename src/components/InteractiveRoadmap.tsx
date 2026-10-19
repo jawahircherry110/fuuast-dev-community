@@ -137,10 +137,10 @@ export default function InteractiveRoadmap() {
               <Sparkles className="w-3.5 h-3.5 text-blue-600" />
               FUUAST Academic & Industry Skill Roadmaps
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
               Developer & AI Roadmaps for Students
             </h1>
-            <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-2xl">
+            <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">
               Modeled after the industry-standard{" "}
               <a
                 href="https://roadmap.sh"
@@ -213,8 +213,8 @@ export default function InteractiveRoadmap() {
                 BSAI
               </span>
             </div>
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">AI Engineer Roadmap</h3>
-            <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
+            <h3 className="font-bold text-slate-900 text-base sm:text-lg">AI Engineer Roadmap</h3>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed">
               LLMs, Prompt Engineering, RAG & Vector DBs, Agents, Fine-Tuning & MLOps.
             </p>
           </button>
@@ -245,8 +245,8 @@ export default function InteractiveRoadmap() {
                 BSCS
               </span>
             </div>
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Computer Science Roadmap</h3>
-            <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
+            <h3 className="font-bold text-slate-900 text-base sm:text-lg">Computer Science Roadmap</h3>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed">
               DSA, Memory, Operating Systems, Networking, Database Internals, System Design.
             </p>
           </button>
@@ -277,8 +277,8 @@ export default function InteractiveRoadmap() {
                 BSSE
               </span>
             </div>
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Software Engineering Roadmap</h3>
-            <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
+            <h3 className="font-bold text-slate-900 text-base sm:text-lg">Software Engineering Roadmap</h3>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed">
               Clean Architecture, Full-Stack Development, SQA Testing, Docker, CI/CD & DevOps.
             </p>
           </button>
@@ -298,10 +298,10 @@ export default function InteractiveRoadmap() {
                   {currentTrack.curriculumCode}
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 {currentTrack.title}
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-3xl leading-relaxed">
+              <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
                 {currentTrack.roleDescription}
               </p>
             </div>
@@ -439,13 +439,13 @@ export default function InteractiveRoadmap() {
                       Step {milestone.stepNumber}
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
                         {milestone.title}
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">
                           {milestone.category}
                         </span>
                       </h3>
-                      <p className="text-xs text-slate-500 mt-0.5">{milestone.subtitle}</p>
+                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">{milestone.subtitle}</p>
                     </div>
                   </div>
 
@@ -619,29 +619,29 @@ export default function InteractiveRoadmap() {
                 )}
               </div>
 
-              <h3 className="text-xl font-bold text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                 {selectedNode.title}
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-sm text-slate-600 mt-1 leading-relaxed">
                 {selectedNode.description}
               </p>
             </div>
 
             {/* Completion Toggle */}
             <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
                 {completedSkills[selectedNode.id] ? (
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 ) : (
                   <Circle className="w-5 h-5 text-slate-400" />
                 )}
-                <span className="font-medium text-slate-800">
+                <span className="font-semibold text-slate-800">
                   {completedSkills[selectedNode.id] ? "Completed & Mastered" : "Not yet checked off"}
                 </span>
               </div>
               <button
                 onClick={() => toggleSkillCompleted(selectedNode.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${
                   completedSkills[selectedNode.id]
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 shadow-2xs"
@@ -652,26 +652,26 @@ export default function InteractiveRoadmap() {
             </div>
 
             {/* In-depth details */}
-            <div className="mt-5 space-y-4 text-xs">
+            <div className="mt-5 space-y-4 text-sm">
               <div>
-                <h4 className="font-semibold text-slate-900 mb-1 flex items-center gap-1.5 text-xs">
-                  <BookOpen className="w-3.5 h-3.5 text-blue-600" /> Deep-Dive Overview
+                <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-1.5 text-sm">
+                  <BookOpen className="w-4 h-4 text-blue-600" /> Deep-Dive Overview
                 </h4>
-                <p className="text-slate-600 leading-relaxed text-xs">
+                <p className="text-slate-600 leading-relaxed text-sm">
                   {selectedNode.details}
                 </p>
               </div>
 
               {/* Tools & Frameworks */}
               <div>
-                <h4 className="font-semibold text-slate-900 mb-1.5 flex items-center gap-1.5 text-xs">
-                  <Code2 className="w-3.5 h-3.5 text-blue-600" /> Key Libraries, Tools & Frameworks
+                <h4 className="font-bold text-slate-900 mb-1.5 flex items-center gap-1.5 text-sm">
+                  <Code2 className="w-4 h-4 text-blue-600" /> Key Libraries, Tools & Frameworks
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {selectedNode.tools.map((t, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-1 rounded-md text-[11px] font-mono bg-blue-50 text-blue-700 border border-blue-200 font-medium"
+                      className="px-2.5 py-1 rounded-md text-xs font-mono bg-blue-50 text-blue-700 border border-blue-200 font-medium"
                     >
                       {t}
                     </span>
@@ -681,11 +681,11 @@ export default function InteractiveRoadmap() {
 
               {/* Academic Course Alignment */}
               {selectedNode.fuuastCourse && (
-                <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80">
-                  <h4 className="font-semibold text-amber-900 flex items-center gap-1.5 text-xs">
-                    <GraduationCap className="w-3.5 h-3.5 text-amber-700" /> FUUAST Course Alignment
+                <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
+                  <h4 className="font-bold text-amber-900 flex items-center gap-1.5 text-sm">
+                    <GraduationCap className="w-4 h-4 text-amber-700" /> FUUAST Course Alignment
                   </h4>
-                  <p className="text-amber-800 mt-0.5 text-xs">
+                  <p className="text-amber-800 mt-0.5 text-sm">
                     {selectedNode.fuuastCourse} ({selectedNode.semester || "Undergraduate Curriculum"})
                   </p>
                 </div>
@@ -693,11 +693,11 @@ export default function InteractiveRoadmap() {
 
               {/* Practice Project Idea */}
               {selectedNode.projectIdea && (
-                <div className="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200/80">
-                  <h4 className="font-semibold text-indigo-900 flex items-center gap-1.5 text-xs">
-                    <Flame className="w-3.5 h-3.5 text-indigo-600" /> Hands-On Project Idea
+                <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-200/80">
+                  <h4 className="font-bold text-indigo-900 flex items-center gap-1.5 text-sm">
+                    <Flame className="w-4 h-4 text-indigo-600" /> Hands-On Project Idea
                   </h4>
-                  <p className="text-indigo-800 mt-0.5 text-xs leading-relaxed">
+                  <p className="text-indigo-800 mt-0.5 text-sm leading-relaxed">
                     {selectedNode.projectIdea}
                   </p>
                 </div>

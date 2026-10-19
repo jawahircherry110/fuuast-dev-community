@@ -101,10 +101,10 @@ export default function DepartmentsPage() {
             <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2 block">
               Curriculum & Degree Tracks
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Department Academic Profiles
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+            <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
               Explore official degree curriculum subjects, industry tech stacks, potential FYP project ideas, and career placements for FUUAST Islamabad computing degrees.
             </p>
           </div>
@@ -125,7 +125,7 @@ export default function DepartmentsPage() {
                       <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">
                         {dept.tag}
                       </span>
-                      <h3 className="text-xl font-semibold text-slate-900 leading-tight">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
                         {dept.name}
                       </h3>
                     </div>
@@ -133,21 +133,21 @@ export default function DepartmentsPage() {
 
                   <Link
                     href="/students"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors self-start sm:self-auto"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors self-start sm:self-auto"
                   >
                     <Users className="w-3.5 h-3.5" /> View {dept.tag} Students
                   </Link>
                 </div>
 
-                <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
+                <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed mb-6">
                   {dept.lead}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                   {/* Core Subjects */}
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-slate-900 flex items-center gap-1.5 text-xs">
-                      <BookOpen className="w-3.5 h-3.5 text-blue-600" /> Core Subjects & Curriculum
+                    <h4 className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
+                      <BookOpen className="w-4 h-4 text-blue-600" /> Core Subjects & Curriculum
                     </h4>
                     <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
                       {dept.coreSubjects.map((sub, idx) => (
@@ -158,14 +158,14 @@ export default function DepartmentsPage() {
 
                   {/* Tech Stack */}
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-slate-900 flex items-center gap-1.5 text-xs">
-                      <Code className="w-3.5 h-3.5 text-blue-600" /> Industry Tech Stack
+                    <h4 className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
+                      <Code className="w-4 h-4 text-blue-600" /> Industry Tech Stack
                     </h4>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {dept.techStack.map((tech, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700"
+                          className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700"
                         >
                           {tech}
                         </span>
@@ -175,8 +175,8 @@ export default function DepartmentsPage() {
 
                   {/* FYP Ideas */}
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-slate-900 flex items-center gap-1.5 text-xs">
-                      <GraduationCap className="w-3.5 h-3.5 text-blue-600" /> Potential FYP Domains
+                    <h4 className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
+                      <GraduationCap className="w-4 h-4 text-blue-600" /> Potential FYP Domains
                     </h4>
                     <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
                       {dept.fypIdeas.map((idea, idx) => (
@@ -187,14 +187,14 @@ export default function DepartmentsPage() {
 
                   {/* Career Paths */}
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-slate-900 flex items-center gap-1.5 text-xs">
-                      <Briefcase className="w-3.5 h-3.5 text-blue-600" /> Graduate Career Paths
+                    <h4 className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
+                      <Briefcase className="w-4 h-4 text-blue-600" /> Graduate Career Paths
                     </h4>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {dept.careerPaths.map((career, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                          className="px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
                         >
                           {career}
                         </span>

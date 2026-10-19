@@ -83,7 +83,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-xs font-medium text-slate-600">
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-medium text-slate-600">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -139,7 +139,7 @@ export default function Navbar() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-b border-slate-200 bg-white px-4 py-3 space-y-1 text-xs font-medium shadow-sm">
+          <div className="md:hidden border-b border-slate-200 bg-white px-4 py-3 space-y-1 text-sm font-medium shadow-sm">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (

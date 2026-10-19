@@ -38,7 +38,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-slate-800">
+      <body className={`${inter.className} min-h-full flex flex-col bg-white text-slate-800 font-sans`}>
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
