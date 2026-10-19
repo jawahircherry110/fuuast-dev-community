@@ -1,59 +1,50 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy, Terminal, Cpu, Laptop, Layers, Sparkles } from "lucide-react";
+import { Check, Copy, Terminal, Cpu, Laptop, Layers, Sparkles, Play } from "lucide-react";
 
 export default function HeroCodeBlock() {
-  const [activeDept, setActiveDept] = useState<"AI" | "CS" | "SE">("AI");
+  const [activeDept, setActiveDept] = useState<"CS" | "SE" | "AI">("AI");
   const [copied, setCopied] = useState(false);
 
-  const deptData = {
-    AI: {
-      degree: "BS Artificial Intelligence",
-      tag: "BSAI",
-      focus: ["LLMs & RAG", "Deep Learning", "AI Agents"],
-      techStack: ["Python", "PyTorch", "FastAPI", "VectorDB"],
-      color: "indigo",
-    },
+  const fullCodeString = `// FUUAST Islamabad Developer Community
+interface DepartmentOverview {
+  degree: string;
+  campus: string;
+  focus: string[];
+  techStack: string[];
+  openForFYP: boolean;
+}
+
+export function getDepartment(dept: "CS" | "SE" | "AI"): DepartmentOverview {
+  const departments = {
     CS: {
       degree: "BS Computer Science",
-      tag: "BSCS",
-      focus: ["DSA", "Operating Systems", "Distributed Systems"],
+      campus: "Near Bahria Enclave, Islamabad",
+      focus: ["Data Structures & Algorithms", "Operating Systems", "Distributed Systems"],
       techStack: ["C++", "Python", "Linux", "PostgreSQL"],
-      color: "blue",
+      openForFYP: true,
     },
     SE: {
       degree: "BS Software Engineering",
-      tag: "BSSE",
-      focus: ["Clean Architecture", "CI/CD & DevOps", "Full-Stack"],
-      techStack: ["TypeScript", "Next.js", "Docker", "Git"],
-      color: "sky",
-    },
-  };
-
-  const current = deptData[activeDept];
-
-  const fullCodeString = `// FUUAST Islamabad Developer Community
-interface Developer {
-  name: string;
-  department: "CS" | "SE" | "AI";
-  campus: string;
-  isVerified: boolean;
-}
-
-export function getDepartment(dept: "AI" | "CS" | "SE") {
-  const departments = {
-    ${activeDept}: {
-      degree: "${current.degree}",
       campus: "Near Bahria Enclave, Islamabad",
-      focus: ${JSON.stringify(current.focus)},
-      techStack: ${JSON.stringify(current.techStack)},
-      readyToCollaborate: true,
+      focus: ["Software Architecture", "CI/CD & DevOps", "Automated Testing"],
+      techStack: ["TypeScript", "Next.js", "Docker", "Git"],
+      openForFYP: true,
+    },
+    AI: {
+      degree: "BS Artificial Intelligence",
+      campus: "Near Bahria Enclave, Islamabad",
+      focus: ["Large Language Models & RAG", "Deep Learning", "AI Agents"],
+      techStack: ["Python", "PyTorch", "FastAPI", "VectorDB"],
+      openForFYP: true,
     },
   };
 
   return departments[dept];
-}`;
+}
+
+const student = getDepartment("${activeDept}");`;
 
   const handleCopy = () => {
     if (navigator.clipboard) {
@@ -61,6 +52,27 @@ export function getDepartment(dept: "AI" | "CS" | "SE") {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const deptDetails = {
+    CS: {
+      name: "BS Computer Science",
+      tag: "BSCS",
+      headline: "DSA, Systems & Distributed Computing",
+      color: "blue",
+    },
+    SE: {
+      name: "BS Software Engineering",
+      tag: "BSSE",
+      headline: "Clean Architecture, DevOps & Full-Stack",
+      color: "sky",
+    },
+    AI: {
+      name: "BS Artificial Intelligence",
+      tag: "BSAI",
+      headline: "LLMs, RAG, PyTorch & AI Agents",
+      color: "indigo",
+    },
   };
 
   return (
@@ -77,7 +89,7 @@ export function getDepartment(dept: "AI" | "CS" | "SE") {
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 text-[11px] font-medium border border-slate-700/60">
             <Terminal className="w-3.5 h-3.5 text-blue-400" />
-            <span>department.ts</span>
+            <span>departments.ts</span>
           </div>
         </div>
 
@@ -90,7 +102,7 @@ export function getDepartment(dept: "AI" | "CS" | "SE") {
           {copied ? (
             <>
               <Check className="w-3 h-3 text-emerald-400" />
-              <span className="text-emerald-400">Copied</span>
+              <span className="text-emerald-400 font-medium">Copied</span>
             </>
           ) : (
             <>
@@ -101,52 +113,58 @@ export function getDepartment(dept: "AI" | "CS" | "SE") {
         </button>
       </div>
 
-      {/* Department Tab Switcher */}
-      <div className="flex items-center gap-1 px-4 py-2 bg-slate-900/50 border-b border-slate-800/60 text-[11px]">
-        <span className="text-slate-500 text-[10px] uppercase font-bold mr-2 tracking-wider">
-          dept:
+      {/* Interactive Dept Selector Pills */}
+      <div className="flex items-center justify-between px-4 py-2 bg-slate-900/60 border-b border-slate-800/60 text-[11px]">
+        <div className="flex items-center gap-1.5">
+          <span className="text-slate-500 text-[10px] uppercase font-bold mr-1">
+            Run:
+          </span>
+          <button
+            onClick={() => setActiveDept("CS")}
+            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md transition-all ${
+              activeDept === "CS"
+                ? "bg-blue-600 text-white font-semibold shadow-xs"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+            }`}
+          >
+            <Laptop className="w-3 h-3" />
+            <span>&quot;CS&quot;</span>
+          </button>
+          <button
+            onClick={() => setActiveDept("SE")}
+            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md transition-all ${
+              activeDept === "SE"
+                ? "bg-sky-600 text-white font-semibold shadow-xs"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+            }`}
+          >
+            <Layers className="w-3 h-3" />
+            <span>&quot;SE&quot;</span>
+          </button>
+          <button
+            onClick={() => setActiveDept("AI")}
+            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md transition-all ${
+              activeDept === "AI"
+                ? "bg-indigo-600 text-white font-semibold shadow-xs"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+            }`}
+          >
+            <Cpu className="w-3 h-3" />
+            <span>&quot;AI&quot;</span>
+          </button>
+        </div>
+
+        <span className="text-[10px] text-slate-500 hidden sm:inline-flex items-center gap-1">
+          <Sparkles className="w-3 h-3 text-amber-400" /> Click to test function
         </span>
-        <button
-          onClick={() => setActiveDept("AI")}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-all ${
-            activeDept === "AI"
-              ? "bg-indigo-600 text-white font-semibold shadow-xs"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-          }`}
-        >
-          <Cpu className="w-3 h-3" />
-          <span>BSAI</span>
-        </button>
-        <button
-          onClick={() => setActiveDept("CS")}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-all ${
-            activeDept === "CS"
-              ? "bg-blue-600 text-white font-semibold shadow-xs"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-          }`}
-        >
-          <Laptop className="w-3 h-3" />
-          <span>BSCS</span>
-        </button>
-        <button
-          onClick={() => setActiveDept("SE")}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-all ${
-            activeDept === "SE"
-              ? "bg-sky-600 text-white font-semibold shadow-xs"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-          }`}
-        >
-          <Layers className="w-3 h-3" />
-          <span>BSSE</span>
-        </button>
       </div>
 
       {/* Code Body with Line Numbers & Syntax Highlighting */}
-      <div className="p-4 sm:p-5 overflow-x-auto text-[11px] sm:text-xs leading-relaxed">
+      <div className="p-4 sm:p-5 overflow-x-auto text-[11px] sm:text-xs leading-relaxed max-h-[460px] overflow-y-auto">
         <div className="flex font-mono">
           {/* Line Numbers */}
-          <div className="select-none text-slate-600 pr-4 text-right space-y-0.5">
-            {Array.from({ length: 18 }).map((_, i) => (
+          <div className="select-none text-slate-600 pr-3 sm:pr-4 text-right space-y-0.5">
+            {Array.from({ length: 32 }).map((_, i) => (
               <div key={i}>{i + 1}</div>
             ))}
           </div>
@@ -160,117 +178,90 @@ export function getDepartment(dept: "AI" | "CS" | "SE") {
             {/* 2 */}
             <div>
               <span className="text-purple-400 font-semibold">export </span>
-              <span className="text-purple-400 font-semibold">interface </span>
-              <span className="text-teal-300">Developer </span>
-              <span className="text-slate-300">{"{"}</span>
-            </div>
-            {/* 3 */}
-            <div>
-              <span className="text-slate-400">  name: </span>
-              <span className="text-teal-300">string</span>
-              <span className="text-slate-400">;</span>
-            </div>
-            {/* 4 */}
-            <div>
-              <span className="text-slate-400">  department: </span>
-              <span className="text-emerald-300">&quot;CS&quot;</span>
-              <span className="text-slate-400"> | </span>
-              <span className="text-emerald-300">&quot;SE&quot;</span>
-              <span className="text-slate-400"> | </span>
-              <span className="text-emerald-300">&quot;AI&quot;</span>
-              <span className="text-slate-400">;</span>
-            </div>
-            {/* 5 */}
-            <div>
-              <span className="text-slate-400">  isVerified: </span>
-              <span className="text-teal-300">boolean</span>
-              <span className="text-slate-400">;</span>
-            </div>
-            {/* 6 */}
-            <div>
-              <span className="text-slate-300">{"}"}</span>
-            </div>
-            {/* 7 */}
-            <div className="text-slate-700 select-none">&nbsp;</div>
-            {/* 8 */}
-            <div>
-              <span className="text-purple-400 font-semibold">export </span>
               <span className="text-purple-400 font-semibold">function </span>
               <span className="text-blue-400 font-semibold">getDepartment</span>
               <span className="text-slate-300">(</span>
               <span className="text-sky-300">dept</span>
               <span className="text-slate-400">: </span>
-              <span className="text-emerald-300">&quot;AI&quot;</span>
-              <span className="text-slate-400"> | </span>
               <span className="text-emerald-300">&quot;CS&quot;</span>
               <span className="text-slate-400"> | </span>
               <span className="text-emerald-300">&quot;SE&quot;</span>
+              <span className="text-slate-400"> | </span>
+              <span className="text-emerald-300">&quot;AI&quot;</span>
               <span className="text-slate-300">) {"{"}</span>
             </div>
-            {/* 9 */}
+            {/* 3 */}
             <div>
               <span className="text-purple-400 font-semibold">  const </span>
               <span className="text-sky-300">departments </span>
               <span className="text-slate-400">= {"{"}</span>
             </div>
-            {/* 10 */}
-            <div>
-              <span className="text-sky-200">    {activeDept}</span>
-              <span className="text-slate-400">: {"{"}</span>
+
+            {/* 4 - CS Block */}
+            <div
+              onClick={() => setActiveDept("CS")}
+              className={`rounded px-1.5 py-0.5 cursor-pointer transition-colors ${
+                activeDept === "CS" ? "bg-blue-950/70 border border-blue-500/40" : "hover:bg-slate-900/60"
+              }`}
+            >
+              <div>
+                <span className="text-sky-300 font-bold">    CS</span>
+                <span className="text-slate-400">: {"{"}</span>
+                {activeDept === "CS" && <span className="text-[10px] text-blue-400 ml-2 font-mono">◀ active</span>}
+              </div>
+              <div className="text-slate-400">      degree: <span className="text-emerald-300">&quot;BS Computer Science&quot;</span>,</div>
+              <div className="text-slate-400">      campus: <span className="text-emerald-300">&quot;Near Bahria Enclave, Islamabad&quot;</span>,</div>
+              <div className="text-slate-400">      focus: <span className="text-slate-300">[</span><span className="text-emerald-300">&quot;DSA&quot;</span>, <span className="text-emerald-300">&quot;OS&quot;</span>, <span className="text-emerald-300">&quot;Distributed Systems&quot;</span><span className="text-slate-300">]</span>,</div>
+              <div className="text-slate-400">      techStack: <span className="text-slate-300">[</span><span className="text-amber-300">&quot;C++&quot;</span>, <span className="text-amber-300">&quot;Python&quot;</span>, <span className="text-amber-300">&quot;PostgreSQL&quot;</span><span className="text-slate-300">]</span>,</div>
+              <div className="text-slate-400">      openForFYP: <span className="text-amber-400 font-semibold">true</span>,</div>
+              <div><span className="text-slate-400">    {"}"},</span></div>
             </div>
-            {/* 11 */}
-            <div>
-              <span className="text-slate-400">      degree: </span>
-              <span className="text-emerald-300">&quot;{current.degree}&quot;</span>
-              <span className="text-slate-400">,</span>
+
+            {/* 11 - SE Block */}
+            <div
+              onClick={() => setActiveDept("SE")}
+              className={`rounded px-1.5 py-0.5 cursor-pointer transition-colors ${
+                activeDept === "SE" ? "bg-sky-950/70 border border-sky-500/40" : "hover:bg-slate-900/60"
+              }`}
+            >
+              <div>
+                <span className="text-sky-300 font-bold">    SE</span>
+                <span className="text-slate-400">: {"{"}</span>
+                {activeDept === "SE" && <span className="text-[10px] text-sky-400 ml-2 font-mono">◀ active</span>}
+              </div>
+              <div className="text-slate-400">      degree: <span className="text-emerald-300">&quot;BS Software Engineering&quot;</span>,</div>
+              <div className="text-slate-400">      campus: <span className="text-emerald-300">&quot;Near Bahria Enclave, Islamabad&quot;</span>,</div>
+              <div className="text-slate-400">      focus: <span className="text-slate-300">[</span><span className="text-emerald-300">&quot;Software Architecture&quot;</span>, <span className="text-emerald-300">&quot;CI/CD & DevOps&quot;</span><span className="text-slate-300">]</span>,</div>
+              <div className="text-slate-400">      techStack: <span className="text-slate-300">[</span><span className="text-amber-300">&quot;TypeScript&quot;</span>, <span className="text-amber-300">&quot;Next.js&quot;</span>, <span className="text-amber-300">&quot;Docker&quot;</span><span className="text-slate-300">]</span>,</div>
+              <div className="text-slate-400">      openForFYP: <span className="text-amber-400 font-semibold">true</span>,</div>
+              <div><span className="text-slate-400">    {"}"},</span></div>
             </div>
-            {/* 12 */}
-            <div>
-              <span className="text-slate-400">      campus: </span>
-              <span className="text-emerald-300">&quot;Near Bahria Enclave, Islamabad&quot;</span>
-              <span className="text-slate-400">,</span>
+
+            {/* 18 - AI Block */}
+            <div
+              onClick={() => setActiveDept("AI")}
+              className={`rounded px-1.5 py-0.5 cursor-pointer transition-colors ${
+                activeDept === "AI" ? "bg-indigo-950/70 border border-indigo-500/40" : "hover:bg-slate-900/60"
+              }`}
+            >
+              <div>
+                <span className="text-sky-300 font-bold">    AI</span>
+                <span className="text-slate-400">: {"{"}</span>
+                {activeDept === "AI" && <span className="text-[10px] text-indigo-400 ml-2 font-mono">◀ active</span>}
+              </div>
+              <div className="text-slate-400">      degree: <span className="text-emerald-300">&quot;BS Artificial Intelligence&quot;</span>,</div>
+              <div className="text-slate-400">      campus: <span className="text-emerald-300">&quot;Near Bahria Enclave, Islamabad&quot;</span>,</div>
+              <div className="text-slate-400">      focus: <span className="text-slate-300">[</span><span className="text-emerald-300">&quot;LLMs & RAG&quot;</span>, <span className="text-emerald-300">&quot;Deep Learning&quot;</span>, <span className="text-emerald-300">&quot;Agents&quot;</span><span className="text-slate-300">]</span>,</div>
+              <div className="text-slate-400">      techStack: <span className="text-slate-300">[</span><span className="text-amber-300">&quot;Python&quot;</span>, <span className="text-amber-300">&quot;PyTorch&quot;</span>, <span className="text-amber-300">&quot;FastAPI&quot;</span><span className="text-slate-300">]</span>,</div>
+              <div className="text-slate-400">      openForFYP: <span className="text-amber-400 font-semibold">true</span>,</div>
+              <div><span className="text-slate-400">    {"}"},</span></div>
             </div>
-            {/* 13 */}
-            <div>
-              <span className="text-slate-400">      focus: </span>
-              <span className="text-slate-300">[</span>
-              {current.focus.map((f, i) => (
-                <span key={i}>
-                  <span className="text-emerald-300">&quot;{f}&quot;</span>
-                  {i < current.focus.length - 1 && <span className="text-slate-400">, </span>}
-                </span>
-              ))}
-              <span className="text-slate-300">]</span>
-              <span className="text-slate-400">,</span>
-            </div>
-            {/* 14 */}
-            <div>
-              <span className="text-slate-400">      techStack: </span>
-              <span className="text-slate-300">[</span>
-              {current.techStack.map((t, i) => (
-                <span key={i}>
-                  <span className="text-amber-300">&quot;{t}&quot;</span>
-                  {i < current.techStack.length - 1 && <span className="text-slate-400">, </span>}
-                </span>
-              ))}
-              <span className="text-slate-300">]</span>
-              <span className="text-slate-400">,</span>
-            </div>
-            {/* 15 */}
-            <div>
-              <span className="text-slate-400">      collaborate: </span>
-              <span className="text-amber-400 font-semibold">true</span>
-              <span className="text-slate-400">,</span>
-            </div>
-            {/* 16 */}
-            <div>
-              <span className="text-slate-400">    {"}"},</span>
-            </div>
-            {/* 17 */}
+
+            {/* 25 */}
             <div>
               <span className="text-slate-400">  {"}"};</span>
             </div>
-            {/* 18 */}
+            {/* 26 */}
             <div>
               <span className="text-purple-400 font-semibold">  return </span>
               <span className="text-sky-300">departments</span>
@@ -278,25 +269,43 @@ export function getDepartment(dept: "AI" | "CS" | "SE") {
               <span className="text-sky-300">dept</span>
               <span className="text-slate-300">];</span>
             </div>
-            {/* 19 */}
+            {/* 27 */}
             <div>
               <span className="text-slate-300">{"}"}</span>
+            </div>
+            {/* 28 */}
+            <div className="text-slate-700 select-none">&nbsp;</div>
+            {/* 29 */}
+            <div>
+              <span className="text-slate-500 italic">// Call function for student inquiry</span>
+            </div>
+            {/* 30 */}
+            <div>
+              <span className="text-purple-400 font-semibold">const </span>
+              <span className="text-sky-300">student </span>
+              <span className="text-slate-400">= </span>
+              <span className="text-blue-400 font-semibold">getDepartment</span>
+              <span className="text-slate-300">(</span>
+              <span className="text-emerald-300">&quot;{activeDept}&quot;</span>
+              <span className="text-slate-300">);</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Terminal Live Execution Bar */}
-      <div className="px-4 py-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-[11px]">
+      {/* Terminal Live Output Bar */}
+      <div className="px-4 py-3 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-slate-400">
-            return: <strong className="text-emerald-300">{current.degree}</strong>
+          <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400 shrink-0" />
+          <span className="text-slate-300 truncate">
+            getDepartment(<span className="text-emerald-300">&quot;{activeDept}&quot;</span>) →{" "}
+            <strong className="text-white">{deptDetails[activeDept].name}</strong>
           </span>
         </div>
-        <span className="text-slate-500 font-mono text-[10px]">
-          status: <span className="text-emerald-400 font-semibold">active_students</span>
-        </span>
+        <div className="flex items-center gap-2 self-start sm:self-auto text-slate-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-[10px] text-slate-400">Near Bahria Enclave, Islamabad</span>
+        </div>
       </div>
     </div>
   );
