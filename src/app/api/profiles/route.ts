@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     if (rollNo) {
       const allProfiles = await getProfiles(false);
       const matched = allProfiles.find(
-        (p) => p.rollNo.toUpperCase() === rollNo.trim().toUpperCase()
+        (p: any) => p.rollNo && p.rollNo.toString().toUpperCase() === rollNo.trim().toUpperCase()
       );
       if (matched) {
         return NextResponse.json(

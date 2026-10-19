@@ -66,16 +66,33 @@ export default function StudentsPage() {
 
           // If the logged-in student was approved by admin, immediately remove pending badge and mark approved
           if (localProf) {
-            const foundInApproved = approvedOnly.find(
-              (p: StudentProfile) =>
-                (localProf?.rollNo && p.rollNo.toUpperCase() === localProf.rollNo.toUpperCase()) ||
-                (localProf?.email && p.email.toLowerCase() === localProf.email.toLowerCase()) ||
-                (localProf?.id && p.id === localProf.id)
-            );
+            const foundInApproved = approvedOnly.find((p: StudentProfile) => {
+              const matchRoll = Boolean(
+                localProf?.rollNo &&
+                  p.rollNo &&
+                  p.rollNo.toString().trim().toUpperCase() ===
+                    localProf.rollNo.toString().trim().toUpperCase()
+              );
+              const matchEmail = Boolean(
+                localProf?.email &&
+                  p.email &&
+                  p.email.toString().trim().toLowerCase() ===
+                    localProf.email.toString().trim().toLowerCase()
+              );
+              const matchId = Boolean(localProf?.id && p.id && p.id === localProf.id);
+              return matchRoll || matchEmail || matchId;
+            });
+
             if (foundInApproved) {
-              const updated = { ...localProf, ...foundInApproved, status: "approved" as const };
+              const updated: StudentProfile = {
+                ...localProf,
+                ...foundInApproved,
+                status: "approved",
+              };
               setMyProfile(updated);
-              localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+              try {
+                localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+              } catch {}
             }
           }
         }
@@ -84,16 +101,23 @@ export default function StudentsPage() {
 
     // Check student's real-time verification status from the server
     if (localProf && localProf.rollNo) {
-      fetch(`/api/profiles?rollNo=${encodeURIComponent(localProf.rollNo)}`, {
+      fetch(`/api/profiles?rollNo=${encodeURIComponent(localProf.rollNo.trim())}`, {
         cache: "no-store",
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data && data.profile && data.status) {
+          if (data && (data.profile || data.status)) {
+            const status = data.status || data.profile?.status;
             setMyProfile((prev) => {
               if (!prev) return null;
-              const updated = { ...prev, ...data.profile, status: data.status };
-              localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+              const updated: StudentProfile = {
+                ...prev,
+                ...(data.profile || {}),
+                status: status || prev.status,
+              };
+              try {
+                localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+              } catch {}
               return updated;
             });
           }
@@ -107,27 +131,41 @@ export default function StudentsPage() {
     setMyProfile(null);
   };
 
-  // Check if student profile is already verified in directory
+  // Check if student profile is already verified in directory or status is approved
   const isApprovedInDirectory = Boolean(
     myProfile &&
-      profiles.some(
-        (p) =>
-          (p.rollNo && myProfile.rollNo && p.rollNo.toUpperCase() === myProfile.rollNo.toUpperCase()) ||
-          (p.email && myProfile.email && p.email.toLowerCase() === myProfile.email.toLowerCase()) ||
-          (p.id && myProfile.id && p.id === myProfile.id)
-      )
+      profiles.some((p) => {
+        const matchRoll = Boolean(
+          p.rollNo &&
+            myProfile.rollNo &&
+            p.rollNo.toString().trim().toUpperCase() ===
+              myProfile.rollNo.toString().trim().toUpperCase()
+        );
+        const matchEmail = Boolean(
+          p.email &&
+            myProfile.email &&
+            p.email.toString().trim().toLowerCase() ===
+              myProfile.email.toString().trim().toLowerCase()
+        );
+        const matchId = Boolean(p.id && myProfile.id && p.id === myProfile.id);
+        return matchRoll || matchEmail || matchId;
+      })
+  );
+
+  const isApproved = Boolean(
+    (myProfile && myProfile.status === "approved") || isApprovedInDirectory
   );
 
   // Synchronize localStorage immediately if verified
   useEffect(() => {
-    if (isApprovedInDirectory && myProfile && myProfile.status !== "approved") {
+    if (isApproved && myProfile && myProfile.status !== "approved") {
       const updated = { ...myProfile, status: "approved" as const };
       setMyProfile(updated);
       try {
         localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
       } catch {}
     }
-  }, [isApprovedInDirectory, myProfile]);
+  }, [isApproved, myProfile]);
 
   const filtered = profiles.filter((p) => {
     if (p.status && p.status !== "approved") return false;
@@ -161,98 +199,7 @@ export default function StudentsPage() {
             MY PROFILE AREA: PENDING, APPROVED, OR SIGNUP BANNER
         ======================================================== */}
         {myProfile ? (
-          myProfile.status === "pending" && !isApprovedInDirectory ? (
-            /* PENDING APPROVAL STATE */
-            <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-amber-50/90 via-orange-50/50 to-amber-50/90 border border-amber-200 shadow-xs">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                <div className="flex items-center gap-3.5">
-                  {myProfile.photoUrl ? (
-                    <img
-                      src={myProfile.photoUrl}
-                      alt={myProfile.name}
-                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-amber-300 shadow-sm shrink-0"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 shadow-sm">
-                      {myProfile.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .substring(0, 2)
-                        .toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-base font-semibold text-slate-900">{myProfile.name}</h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-amber-600" /> Verification Pending
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 mt-0.5">
-                      BS{myProfile.department} • {myProfile.semester} • Roll No: {myProfile.rollNo}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 self-end sm:self-auto">
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 border border-amber-300 hover:bg-amber-50 transition-colors shadow-2xs"
-                  >
-                    Edit Details
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white transition-colors"
-                    title="Sign Out"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/80 border border-amber-200/80 text-xs text-amber-800 flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div className="leading-relaxed">
-                  <strong>Awaiting Admin Review:</strong> Your registration has been submitted
-                  to the FUUAST Admin desk. Once the department coordinator verifies your student
-                  details and photo, your profile card will automatically appear live on this directory.
-                </div>
-              </div>
-            </div>
-          ) : myProfile.status === "rejected" ? (
-            /* REJECTED STATE */
-            <div className="mb-10 p-5 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-base shrink-0">
-                  <AlertCircle className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-rose-900">
-                    Profile Verification Not Approved
-                  </h3>
-                  <p className="text-xs text-rose-700 mt-0.5">
-                    Your registration could not be verified by the admin. Please update your details or contact the coordinator.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 transition-colors"
-                >
-                  Update & Re-submit
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-rose-100"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          ) : (
+          isApproved ? (
             /* APPROVED ACTIVE PROFILE */
             <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-blue-50 via-slate-50 to-indigo-50/60 border border-blue-200">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -356,6 +303,97 @@ export default function StudentsPage() {
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
+                </div>
+              </div>
+            </div>
+          ) : myProfile.status === "rejected" ? (
+            /* REJECTED STATE */
+            <div className="mb-10 p-5 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-base shrink-0">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-rose-900">
+                    Profile Verification Not Approved
+                  </h3>
+                  <p className="text-xs text-rose-700 mt-0.5">
+                    Your registration could not be verified by the admin. Please update your details or contact the coordinator.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+                >
+                  Update & Re-submit
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-rose-100"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* PENDING APPROVAL STATE */
+            <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-amber-50/90 via-orange-50/50 to-amber-50/90 border border-amber-200 shadow-xs">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-3.5">
+                  {myProfile.photoUrl ? (
+                    <img
+                      src={myProfile.photoUrl}
+                      alt={myProfile.name}
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-amber-300 shadow-sm shrink-0"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0 shadow-sm">
+                      {myProfile.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .substring(0, 2)
+                        .toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-base font-semibold text-slate-900">{myProfile.name}</h2>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-amber-600" /> Verification Pending
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      BS{myProfile.department} • {myProfile.semester} • Roll No: {myProfile.rollNo}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white text-slate-700 border border-amber-300 hover:bg-amber-50 transition-colors shadow-2xs"
+                  >
+                    Edit Details
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white/80 border border-amber-200/80 text-xs text-amber-800 flex items-start gap-2.5">
+                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>Awaiting Admin Review:</strong> Your registration has been submitted
+                  to the FUUAST Admin desk. Once the department coordinator verifies your student
+                  details and photo, your profile card will automatically appear live on this directory.
                 </div>
               </div>
             </div>
