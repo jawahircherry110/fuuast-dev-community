@@ -107,6 +107,28 @@ export default function StudentsPage() {
     setMyProfile(null);
   };
 
+  // Check if student profile is already verified in directory
+  const isApprovedInDirectory = Boolean(
+    myProfile &&
+      profiles.some(
+        (p) =>
+          (p.rollNo && myProfile.rollNo && p.rollNo.toUpperCase() === myProfile.rollNo.toUpperCase()) ||
+          (p.email && myProfile.email && p.email.toLowerCase() === myProfile.email.toLowerCase()) ||
+          (p.id && myProfile.id && p.id === myProfile.id)
+      )
+  );
+
+  // Synchronize localStorage immediately if verified
+  useEffect(() => {
+    if (isApprovedInDirectory && myProfile && myProfile.status !== "approved") {
+      const updated = { ...myProfile, status: "approved" as const };
+      setMyProfile(updated);
+      try {
+        localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+      } catch {}
+    }
+  }, [isApprovedInDirectory, myProfile]);
+
   const filtered = profiles.filter((p) => {
     if (p.status && p.status !== "approved") return false;
     const matchesDept = deptFilter === "All" || p.department === deptFilter;
@@ -139,7 +161,7 @@ export default function StudentsPage() {
             MY PROFILE AREA: PENDING, APPROVED, OR SIGNUP BANNER
         ======================================================== */}
         {myProfile ? (
-          myProfile.status === "pending" ? (
+          myProfile.status === "pending" && !isApprovedInDirectory ? (
             /* PENDING APPROVAL STATE */
             <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-amber-50/90 via-orange-50/50 to-amber-50/90 border border-amber-200 shadow-xs">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
