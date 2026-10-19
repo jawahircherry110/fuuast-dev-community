@@ -8,6 +8,26 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const all = searchParams.get("all") === "true";
+    const rollNo = searchParams.get("rollNo");
+
+    // If specific roll number status check is requested
+    if (rollNo) {
+      const allProfiles = await getProfiles(false);
+      const matched = allProfiles.find(
+        (p) => p.rollNo.toUpperCase() === rollNo.trim().toUpperCase()
+      );
+      if (matched) {
+        return NextResponse.json(
+          { profile: matched, status: matched.status },
+          {
+            headers: {
+              "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            },
+          }
+        );
+      }
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    }
 
     // If all is true, return all profiles (for admin); otherwise only approved profiles (for public roster)
     const profiles = await getProfiles(!all);

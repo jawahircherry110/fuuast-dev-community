@@ -45,6 +45,15 @@ export default function StudentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    let localProf: StudentProfile | null = null;
+    const saved = localStorage.getItem("fuuast_my_profile");
+    if (saved) {
+      try {
+        localProf = JSON.parse(saved);
+        setMyProfile(localProf);
+      } catch {}
+    }
+
     // Public directory only receives approved students
     fetch("/api/profiles", { cache: "no-store" })
       .then((res) => res.json())
@@ -54,16 +63,42 @@ export default function StudentsPage() {
             (p: StudentProfile) => p.status === "approved"
           );
           setProfiles(approvedOnly);
+
+          // If the logged-in student was approved by admin, immediately remove pending badge and mark approved
+          if (localProf) {
+            const foundInApproved = approvedOnly.find(
+              (p: StudentProfile) =>
+                (localProf?.rollNo && p.rollNo.toUpperCase() === localProf.rollNo.toUpperCase()) ||
+                (localProf?.email && p.email.toLowerCase() === localProf.email.toLowerCase()) ||
+                (localProf?.id && p.id === localProf.id)
+            );
+            if (foundInApproved) {
+              const updated = { ...localProf, ...foundInApproved, status: "approved" as const };
+              setMyProfile(updated);
+              localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+            }
+          }
         }
       })
       .catch(() => {});
 
-    // Check logged in student profile
-    const saved = localStorage.getItem("fuuast_my_profile");
-    if (saved) {
-      try {
-        setMyProfile(JSON.parse(saved));
-      } catch {}
+    // Check student's real-time verification status from the server
+    if (localProf && localProf.rollNo) {
+      fetch(`/api/profiles?rollNo=${encodeURIComponent(localProf.rollNo)}`, {
+        cache: "no-store",
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.profile && data.status) {
+            setMyProfile((prev) => {
+              if (!prev) return null;
+              const updated = { ...prev, ...data.profile, status: data.status };
+              localStorage.setItem("fuuast_my_profile", JSON.stringify(updated));
+              return updated;
+            });
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
