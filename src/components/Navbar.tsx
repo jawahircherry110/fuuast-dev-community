@@ -41,7 +41,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/", icon: HomeIcon },
     { name: "About", href: "/about", icon: Info },
-    { name: "CS, SE & AI Tracks", href: "/departments", icon: Layers },
+    { name: "Tracks & Roadmaps", href: "/departments", icon: Layers },
     { name: "Jobs & Internships", href: "/jobs", icon: Briefcase, highlight: true },
     { name: "Student Directory", href: "/students", icon: Users },
     { name: "Contact", href: "/contact", icon: Mail },

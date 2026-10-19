@@ -40,7 +40,7 @@ export default function Footer() {
             </li>
             <li>
               <Link href="/departments" className="hover:text-white transition-colors">
-                CS, SE & AI Tracks
+                Tracks & Skill Roadmaps
               </Link>
             </li>
             <li>
