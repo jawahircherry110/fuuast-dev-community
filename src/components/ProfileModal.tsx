@@ -205,6 +205,33 @@ export default function ProfileModal({ isOpen, onClose, onSaved }: ProfileModalP
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-2.5">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  LinkedIn Profile (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://linkedin.com/in/..."
+                  value={profileForm.linkedin}
+                  onChange={(e) => setProfileForm({ ...profileForm, linkedin: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  GitHub Profile (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://github.com/..."
+                  value={profileForm.github}
+                  onChange={(e) => setProfileForm({ ...profileForm, github: e.target.value })}
+                  className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                />
+              </div>
+            </div>
+
             <div className="pt-2 flex justify-end gap-2">
               <button
                 type="button"

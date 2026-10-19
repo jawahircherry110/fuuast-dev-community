@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProfiles, saveProfile } from "@/lib/db";
+import { getProfiles, saveProfile, deleteProfile } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -21,5 +21,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "Profile ID required" }, { status: 400 });
+    }
+
+    await deleteProfile(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to delete profile" }, { status: 500 });
   }
 }

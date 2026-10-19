@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Briefcase,
@@ -15,10 +15,19 @@ import {
 import { initialJobs, JobOpportunity } from "@/data/initialData";
 
 export default function JobsPage() {
-  const [jobs] = useState<JobOpportunity[]>(initialJobs);
+  const [jobs, setJobs] = useState<JobOpportunity[]>(initialJobs);
   const [deptFilter, setDeptFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/jobs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.jobs && data.jobs.length > 0) setJobs(data.jobs);
+      })
+      .catch(() => {});
+  }, []);
 
   const filtered = jobs.filter((j) => {
     const matchesDept = deptFilter === "All" || j.department === "All" || j.department === deptFilter;

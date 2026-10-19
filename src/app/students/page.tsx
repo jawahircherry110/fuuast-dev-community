@@ -9,6 +9,7 @@ import {
   User,
   GraduationCap,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import ProfileModal from "@/components/ProfileModal";
 
@@ -113,17 +114,44 @@ export default function StudentsPage() {
               {myProfile.bio || "Student at Federal Urdu University Islamabad."}
             </p>
 
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-              <span className="text-slate-400 text-[10px] font-medium mr-1 uppercase">Skills:</span>
-              {myProfile.skills &&
-                myProfile.skills.map((s, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-0.5 rounded bg-white text-blue-700 border border-blue-200/80 font-medium"
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-slate-400 text-[10px] font-medium mr-1 uppercase">Skills:</span>
+                {myProfile.skills &&
+                  myProfile.skills.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded bg-white text-blue-700 border border-blue-200/80 font-medium"
+                    >
+                      {s}
+                    </span>
+                  ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {myProfile.linkedin && (
+                  <a
+                    href={myProfile.linkedin.startsWith("http") ? myProfile.linkedin : `https://${myProfile.linkedin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-1"
                   >
-                    {s}
-                  </span>
-                ))}
+                    <span>My LinkedIn</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+                {myProfile.github && (
+                  <a
+                    href={myProfile.github.startsWith("http") ? myProfile.github : `https://${myProfile.github}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-900 text-white hover:bg-slate-800 transition-colors flex items-center gap-1"
+                  >
+                    <span>My GitHub</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -228,10 +256,32 @@ export default function StudentsPage() {
               </div>
 
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Available</span>
+                <div className="flex items-center gap-1.5">
+                  {student.linkedin ? (
+                    <a
+                      href={student.linkedin.startsWith("http") ? student.linkedin : `https://${student.linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1"
+                    >
+                      <span>LinkedIn</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  ) : null}
+                  {student.github ? (
+                    <a
+                      href={student.github.startsWith("http") ? student.github : `https://${student.github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                    >
+                      GitHub
+                    </a>
+                  ) : null}
+                </div>
                 <a
                   href={`mailto:${student.email}`}
-                  className="text-blue-600 hover:underline font-medium flex items-center gap-1"
+                  className="text-blue-600 hover:underline font-medium flex items-center gap-1 text-[11px]"
                 >
                   <Mail className="w-3 h-3" /> Connect
                 </a>

@@ -1,10 +1,11 @@
 import mysql from "mysql2/promise";
 import fs from "fs/promises";
 import path from "path";
+import { initialJobs, JobOpportunity } from "@/data/initialData";
 
-// Paths for local JSON fallback
 const localDbPath = path.join(process.cwd(), "src", "data", "db.json");
 const localMsgPath = path.join(process.cwd(), "src", "data", "messages.json");
+const localJobsPath = path.join(process.cwd(), "src", "data", "jobs.json");
 
 let pool: mysql.Pool | null = null;
 let tablesInitialized = false;
@@ -20,7 +21,7 @@ function getPool(): mysql.Pool {
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-      connectTimeout: 2000, // Quick timeout to fallback smoothly if running locally without MySQL
+      connectTimeout: 2000,
     });
   }
   return pool;
@@ -58,15 +59,31 @@ async function ensureTables(p: mysql.Pool) {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS jobs (
+        id VARCHAR(64) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        location VARCHAR(255) NOT NULL,
+        type VARCHAR(64) NOT NULL,
+        department VARCHAR(64) NOT NULL,
+        stipend VARCHAR(255),
+        description TEXT,
+        apply_link VARCHAR(512) NOT NULL,
+        posted_date VARCHAR(64),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
     tablesInitialized = true;
   } catch (err) {
     console.warn("Could not ensure MySQL tables:", err);
   }
 }
 
-/**
- * Get all student profiles (MySQL first, local JSON fallback)
- */
+/* ==========================================================
+   PROFILES
+========================================================== */
 export async function getProfiles() {
   try {
     const p = getPool();
@@ -90,11 +107,8 @@ export async function getProfiles() {
         avatarBg: r.avatar_bg || "bg-blue-600",
       }));
     }
-  } catch (mysqlErr) {
-    // MySQL not reachable (e.g. running locally) -> fallback to local file
-  }
+  } catch {}
 
-  // Fallback to local JSON
   try {
     const fileData = await fs.readFile(localDbPath, "utf-8");
     const json = JSON.parse(fileData);
@@ -104,9 +118,6 @@ export async function getProfiles() {
   }
 }
 
-/**
- * Save a new student profile (MySQL first, local JSON fallback)
- */
 export async function saveProfile(profile: {
   name: string;
   rollNo: string;
@@ -128,8 +139,6 @@ export async function saveProfile(profile: {
       : profile.department === "SE"
       ? "bg-sky-600"
       : "bg-indigo-600";
-
-  let savedToMySQL = false;
 
   try {
     const p = getPool();
@@ -156,12 +165,8 @@ export async function saveProfile(profile: {
         avatarBg,
       ]
     );
-    savedToMySQL = true;
-  } catch (mysqlErr) {
-    // MySQL unreachable locally, saving to local JSON
-  }
+  } catch {}
 
-  // Always update local file for consistent local dev
   const newProfile = {
     id,
     name: profile.name,
@@ -183,12 +188,58 @@ export async function saveProfile(profile: {
     await fs.writeFile(localDbPath, JSON.stringify(json, null, 2), "utf-8");
   } catch {}
 
-  return { profile: newProfile, savedToMySQL };
+  return { profile: newProfile };
 }
 
-/**
- * Save a contact message (MySQL first, local JSON fallback)
- */
+export async function deleteProfile(id: string) {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query("DELETE FROM student_profiles WHERE id = ?", [id]);
+  } catch {}
+
+  try {
+    const fileData = await fs.readFile(localDbPath, "utf-8");
+    const json = JSON.parse(fileData);
+    json.profiles = (json.profiles || []).filter((p: any) => p.id !== id);
+    await fs.writeFile(localDbPath, JSON.stringify(json, null, 2), "utf-8");
+  } catch {}
+
+  return { success: true };
+}
+
+/* ==========================================================
+   CONTACT MESSAGES
+========================================================== */
+export async function getMessages() {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    const [rows] = await p.query<any[]>(
+      "SELECT * FROM contact_messages ORDER BY created_at DESC"
+    );
+    if (rows && rows.length > 0) {
+      return rows.map((r) => ({
+        id: r.id,
+        name: r.name,
+        email: r.email,
+        department: r.department,
+        subject: r.subject,
+        message: r.message,
+        timestamp: r.created_at,
+      }));
+    }
+  } catch {}
+
+  try {
+    const fileData = await fs.readFile(localMsgPath, "utf-8");
+    const json = JSON.parse(fileData);
+    return json.messages || [];
+  } catch {
+    return [];
+  }
+}
+
 export async function saveMessage(msg: {
   name: string;
   email: string;
@@ -197,8 +248,6 @@ export async function saveMessage(msg: {
   message: string;
 }) {
   const id = `msg-${Date.now()}`;
-  let savedToMySQL = false;
-
   try {
     const p = getPool();
     await ensureTables(p);
@@ -214,12 +263,8 @@ export async function saveMessage(msg: {
         msg.message,
       ]
     );
-    savedToMySQL = true;
-  } catch (mysqlErr) {
-    // MySQL unreachable locally, saving to local JSON
-  }
+  } catch {}
 
-  // Also write to local file
   try {
     let json = { messages: [] as any[] };
     try {
@@ -240,5 +285,141 @@ export async function saveMessage(msg: {
     await fs.writeFile(localMsgPath, JSON.stringify(json, null, 2), "utf-8");
   } catch {}
 
-  return { id, savedToMySQL };
+  return { id };
+}
+
+export async function deleteMessage(id: string) {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query("DELETE FROM contact_messages WHERE id = ?", [id]);
+  } catch {}
+
+  try {
+    const fileData = await fs.readFile(localMsgPath, "utf-8");
+    const json = JSON.parse(fileData);
+    json.messages = (json.messages || []).filter((m: any) => m.id !== id);
+    await fs.writeFile(localMsgPath, JSON.stringify(json, null, 2), "utf-8");
+  } catch {}
+
+  return { success: true };
+}
+
+/* ==========================================================
+   JOBS & INTERNSHIPS (Admin managed)
+========================================================== */
+export async function getJobs(): Promise<JobOpportunity[]> {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    const [rows] = await p.query<any[]>(
+      "SELECT * FROM jobs ORDER BY created_at DESC"
+    );
+    if (rows && rows.length > 0) {
+      return rows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        company: r.company,
+        location: r.location,
+        type: r.type,
+        department: r.department,
+        stipend: r.stipend,
+        description: r.description,
+        applyLink: r.apply_link,
+        postedDate: r.posted_date || "Recently",
+      }));
+    }
+  } catch {}
+
+  try {
+    const fileData = await fs.readFile(localJobsPath, "utf-8");
+    const json = JSON.parse(fileData);
+    if (json.jobs && json.jobs.length > 0) {
+      return json.jobs;
+    }
+  } catch {}
+
+  return initialJobs;
+}
+
+export async function saveJob(job: {
+  title: string;
+  company: string;
+  location: string;
+  type: "Internship" | "Full-time" | "Part-time" | "Remote";
+  department: "CS" | "SE" | "AI" | "All";
+  stipend?: string;
+  description: string;
+  applyLink: string;
+}) {
+  const id = `j-${Date.now()}`;
+  const postedDate = "Just now";
+
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query(
+      `INSERT INTO jobs (id, title, company, location, type, department, stipend, description, apply_link, posted_date)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        job.title,
+        job.company,
+        job.location,
+        job.type,
+        job.department,
+        job.stipend || "Competitive",
+        job.description,
+        job.applyLink,
+        postedDate,
+      ]
+    );
+  } catch {}
+
+  const newJob: JobOpportunity = {
+    id,
+    title: job.title,
+    company: job.company,
+    location: job.location,
+    type: job.type,
+    department: job.department,
+    stipend: job.stipend || "Competitive",
+    description: job.description,
+    applyLink: job.applyLink,
+    postedDate,
+  };
+
+  try {
+    let json = { jobs: initialJobs };
+    try {
+      const fileData = await fs.readFile(localJobsPath, "utf-8");
+      json = JSON.parse(fileData);
+    } catch {}
+
+    json.jobs = [newJob, ...(json.jobs || [])];
+    await fs.writeFile(localJobsPath, JSON.stringify(json, null, 2), "utf-8");
+  } catch {}
+
+  return { job: newJob };
+}
+
+export async function deleteJob(id: string) {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query("DELETE FROM jobs WHERE id = ?", [id]);
+  } catch {}
+
+  try {
+    let json = { jobs: initialJobs };
+    try {
+      const fileData = await fs.readFile(localJobsPath, "utf-8");
+      json = JSON.parse(fileData);
+    } catch {}
+
+    json.jobs = (json.jobs || []).filter((j: any) => j.id !== id);
+    await fs.writeFile(localJobsPath, JSON.stringify(json, null, 2), "utf-8");
+  } catch {}
+
+  return { success: true };
 }

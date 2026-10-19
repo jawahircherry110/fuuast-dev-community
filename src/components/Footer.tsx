@@ -58,6 +58,11 @@ export default function Footer() {
                 Contact Coordinators
               </Link>
             </li>
+            <li>
+              <Link href="/admin" className="text-slate-500 hover:text-slate-300 transition-colors">
+                Admin Portal
+              </Link>
+            </li>
           </ul>
         </div>
 
