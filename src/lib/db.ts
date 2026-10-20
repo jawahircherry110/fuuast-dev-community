@@ -3,10 +3,12 @@ import fs from "fs/promises";
 import path from "path";
 import bcrypt from "bcryptjs";
 import { initialJobs, JobOpportunity } from "@/data/initialData";
+import { initialPosts, CommunityPost, PostComment } from "@/data/postsData";
 
 const localDbPath = path.join(process.cwd(), "src", "data", "db.json");
 const localMsgPath = path.join(process.cwd(), "src", "data", "messages.json");
 const localJobsPath = path.join(process.cwd(), "src", "data", "jobs.json");
+const localPostsPath = path.join(process.cwd(), "src", "data", "posts.json");
 
 let pool: mysql.Pool | null = null;
 let tablesInitialized = false;
@@ -82,6 +84,40 @@ async function ensureTables(p: mysql.Pool) {
         description TEXT,
         apply_link VARCHAR(512) NOT NULL,
         posted_date VARCHAR(64),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS community_posts (
+        id VARCHAR(64) PRIMARY KEY,
+        author_id VARCHAR(64) NOT NULL,
+        author_name VARCHAR(255) NOT NULL,
+        author_roll_no VARCHAR(64) NOT NULL,
+        author_department VARCHAR(16) NOT NULL,
+        author_semester VARCHAR(32) NOT NULL,
+        author_photo_url LONGTEXT,
+        title VARCHAR(255),
+        content TEXT NOT NULL,
+        category VARCHAR(64) DEFAULT 'Problem / Query',
+        code_snippet TEXT,
+        tags TEXT,
+        likes_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    await p.query(`
+      CREATE TABLE IF NOT EXISTS post_comments (
+        id VARCHAR(64) PRIMARY KEY,
+        post_id VARCHAR(64) NOT NULL,
+        author_id VARCHAR(64) NOT NULL,
+        author_name VARCHAR(255) NOT NULL,
+        author_roll_no VARCHAR(64) NOT NULL,
+        author_department VARCHAR(16) NOT NULL,
+        author_semester VARCHAR(32) NOT NULL,
+        author_photo_url LONGTEXT,
+        content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
@@ -608,6 +644,318 @@ export async function deleteJob(id: string) {
 
     json.jobs = (json.jobs || []).filter((j: any) => j.id !== id);
     await fs.writeFile(localJobsPath, JSON.stringify(json, null, 2), "utf-8");
+  } catch {}
+
+  return { success: true };
+}
+
+/* ==========================================================
+   COMMUNITY POSTS & TWEETS (DEV LOUNGE)
+========================================================== */
+
+export async function getPosts(): Promise<CommunityPost[]> {
+  // 1. Try MySQL database
+  try {
+    const p = getPool();
+    await ensureTables(p);
+
+    const [postRows] = await p.query<any[]>(
+      "SELECT * FROM community_posts ORDER BY created_at DESC"
+    );
+
+    if (Array.isArray(postRows) && postRows.length > 0) {
+      const [commentRows] = await p.query<any[]>(
+        "SELECT * FROM post_comments ORDER BY created_at ASC"
+      );
+      const commentsList = Array.isArray(commentRows) ? commentRows : [];
+
+      return postRows.map((r) => {
+        let likes: string[] = [];
+        try {
+          likes = r.likes_json ? JSON.parse(r.likes_json) : [];
+        } catch {}
+
+        let tags: string[] = [];
+        try {
+          tags = r.tags ? (Array.isArray(r.tags) ? r.tags : r.tags.split(",").map((t: string) => t.trim())) : [];
+        } catch {}
+
+        const postComments = commentsList
+          .filter((c) => c.post_id === r.id)
+          .map((c) => ({
+            id: c.id,
+            postId: c.post_id,
+            authorId: c.author_id,
+            authorName: c.author_name,
+            authorRollNo: c.author_roll_no,
+            authorDepartment: c.author_department,
+            authorSemester: c.author_semester,
+            authorPhotoUrl: c.author_photo_url || "",
+            content: c.content,
+            createdAt: c.created_at,
+          }));
+
+        return {
+          id: r.id,
+          authorId: r.author_id,
+          authorName: r.author_name,
+          authorRollNo: r.author_roll_no,
+          authorDepartment: r.author_department,
+          authorSemester: r.author_semester,
+          authorPhotoUrl: r.author_photo_url || "",
+          title: r.title || "",
+          content: r.content,
+          category: r.category || "Problem / Query",
+          codeSnippet: r.code_snippet || "",
+          tags,
+          likes,
+          comments: postComments,
+          createdAt: r.created_at,
+        };
+      });
+    }
+  } catch {}
+
+  // 2. Try local posts.json file
+  try {
+    const fileData = await fs.readFile(localPostsPath, "utf-8");
+    const json = JSON.parse(fileData);
+    if (Array.isArray(json.posts)) {
+      return json.posts;
+    }
+  } catch {}
+
+  // 3. Fallback: Write initial posts to file
+  try {
+    await fs.writeFile(localPostsPath, JSON.stringify({ posts: initialPosts }, null, 2), "utf-8");
+  } catch {}
+
+  return initialPosts;
+}
+
+export async function savePost(post: {
+  authorId: string;
+  authorName: string;
+  authorRollNo: string;
+  authorDepartment: "CS" | "SE" | "AI";
+  authorSemester: string;
+  authorPhotoUrl?: string;
+  title?: string;
+  content: string;
+  category?: "Problem / Query" | "FYP Idea & Teammates" | "Bug & Code Help" | "Career & Internships" | "General Discussion";
+  codeSnippet?: string;
+  tags?: string[];
+}): Promise<{ post: CommunityPost }> {
+  const id = `post-${Date.now()}`;
+  const createdAt = new Date().toISOString();
+  const category = post.category || "Problem / Query";
+  const tagsStr = Array.isArray(post.tags) ? post.tags.join(",") : "";
+  const likes: string[] = [];
+
+  const newPost: CommunityPost = {
+    id,
+    authorId: post.authorId,
+    authorName: post.authorName,
+    authorRollNo: post.authorRollNo,
+    authorDepartment: post.authorDepartment,
+    authorSemester: post.authorSemester,
+    authorPhotoUrl: post.authorPhotoUrl || "",
+    title: post.title || "",
+    content: post.content,
+    category,
+    codeSnippet: post.codeSnippet || "",
+    tags: post.tags || [],
+    likes,
+    comments: [],
+    createdAt,
+  };
+
+  // 1. MySQL insert
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query(
+      `INSERT INTO community_posts (id, author_id, author_name, author_roll_no, author_department, author_semester, author_photo_url, title, content, category, code_snippet, tags, likes_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        newPost.authorId,
+        newPost.authorName,
+        newPost.authorRollNo,
+        newPost.authorDepartment,
+        newPost.authorSemester,
+        newPost.authorPhotoUrl,
+        newPost.title,
+        newPost.content,
+        newPost.category,
+        newPost.codeSnippet,
+        tagsStr,
+        JSON.stringify(likes),
+      ]
+    );
+  } catch {}
+
+  // 2. File fallback update
+  try {
+    let json = { posts: [] as CommunityPost[] };
+    try {
+      const fileData = await fs.readFile(localPostsPath, "utf-8");
+      json = JSON.parse(fileData);
+    } catch {}
+
+    json.posts = [newPost, ...(json.posts || [])];
+    await fs.writeFile(localPostsPath, JSON.stringify(json, null, 2), "utf-8");
+  } catch {}
+
+  return { post: newPost };
+}
+
+export async function togglePostLike(postId: string, studentRollNo: string): Promise<{ success: boolean; likes: string[] }> {
+  let updatedLikes: string[] = [];
+
+  // Try file update
+  try {
+    let json = { posts: [] as CommunityPost[] };
+    try {
+      const fileData = await fs.readFile(localPostsPath, "utf-8");
+      json = JSON.parse(fileData);
+    } catch {}
+
+    const post = json.posts.find((p) => p.id === postId);
+    if (post) {
+      if (!Array.isArray(post.likes)) post.likes = [];
+      const index = post.likes.indexOf(studentRollNo);
+      if (index > -1) {
+        post.likes.splice(index, 1);
+      } else {
+        post.likes.push(studentRollNo);
+      }
+      updatedLikes = post.likes;
+      await fs.writeFile(localPostsPath, JSON.stringify(json, null, 2), "utf-8");
+    }
+  } catch {}
+
+  // Try MySQL update
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    const [rows] = await p.query<any[]>("SELECT likes_json FROM community_posts WHERE id = ?", [postId]);
+    if (Array.isArray(rows) && rows.length > 0) {
+      let currentLikes: string[] = [];
+      try {
+        currentLikes = rows[0].likes_json ? JSON.parse(rows[0].likes_json) : [];
+      } catch {}
+
+      const idx = currentLikes.indexOf(studentRollNo);
+      if (idx > -1) {
+        currentLikes.splice(idx, 1);
+      } else {
+        currentLikes.push(studentRollNo);
+      }
+      updatedLikes = currentLikes;
+      await p.query("UPDATE community_posts SET likes_json = ? WHERE id = ?", [
+        JSON.stringify(currentLikes),
+        postId,
+      ]);
+    }
+  } catch {}
+
+  return { success: true, likes: updatedLikes };
+}
+
+export async function addPostComment(
+  postId: string,
+  comment: {
+    authorId: string;
+    authorName: string;
+    authorRollNo: string;
+    authorDepartment: "CS" | "SE" | "AI";
+    authorSemester: string;
+    authorPhotoUrl?: string;
+    content: string;
+  }
+): Promise<{ success: boolean; comment: PostComment }> {
+  const commentId = `c-${Date.now()}`;
+  const createdAt = new Date().toISOString();
+
+  const newComment: PostComment = {
+    id: commentId,
+    postId,
+    authorId: comment.authorId,
+    authorName: comment.authorName,
+    authorRollNo: comment.authorRollNo,
+    authorDepartment: comment.authorDepartment,
+    authorSemester: comment.authorSemester,
+    authorPhotoUrl: comment.authorPhotoUrl || "",
+    content: comment.content,
+    createdAt,
+  };
+
+  // 1. MySQL insert
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    await p.query(
+      `INSERT INTO post_comments (id, post_id, author_id, author_name, author_roll_no, author_department, author_semester, author_photo_url, content)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        commentId,
+        postId,
+        newComment.authorId,
+        newComment.authorName,
+        newComment.authorRollNo,
+        newComment.authorDepartment,
+        newComment.authorSemester,
+        newComment.authorPhotoUrl,
+        newComment.content,
+      ]
+    );
+  } catch {}
+
+  // 2. File fallback update
+  try {
+    let json = { posts: [] as CommunityPost[] };
+    try {
+      const fileData = await fs.readFile(localPostsPath, "utf-8");
+      json = JSON.parse(fileData);
+    } catch {}
+
+    const targetPost = json.posts.find((p) => p.id === postId);
+    if (targetPost) {
+      if (!Array.isArray(targetPost.comments)) targetPost.comments = [];
+      targetPost.comments.push(newComment);
+      await fs.writeFile(localPostsPath, JSON.stringify(json, null, 2), "utf-8");
+    }
+  } catch {}
+
+  return { success: true, comment: newComment };
+}
+
+export async function deletePost(postId: string, rollNo?: string): Promise<{ success: boolean }> {
+  try {
+    const p = getPool();
+    await ensureTables(p);
+    if (rollNo) {
+      await p.query("DELETE FROM community_posts WHERE id = ? AND author_roll_no = ?", [postId, rollNo]);
+    } else {
+      await p.query("DELETE FROM community_posts WHERE id = ?", [postId]);
+    }
+    await p.query("DELETE FROM post_comments WHERE post_id = ?", [postId]);
+  } catch {}
+
+  try {
+    let json = { posts: [] as CommunityPost[] };
+    try {
+      const fileData = await fs.readFile(localPostsPath, "utf-8");
+      json = JSON.parse(fileData);
+    } catch {}
+
+    json.posts = json.posts.filter((p) => {
+      if (p.id !== postId) return true;
+      if (rollNo && p.authorRollNo !== rollNo) return true;
+      return false;
+    });
+    await fs.writeFile(localPostsPath, JSON.stringify(json, null, 2), "utf-8");
   } catch {}
 
   return { success: true };

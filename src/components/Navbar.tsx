@@ -15,6 +15,7 @@ import {
   Layers,
   Mail,
   Home as HomeIcon,
+  MessageSquareCode,
 } from "lucide-react";
 import ProfileModal from "@/components/ProfileModal";
 
@@ -41,8 +42,9 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/", icon: HomeIcon },
     { name: "About", href: "/about", icon: Info },
+    { name: "Dev Lounge", href: "/feed", icon: MessageSquareCode, highlight: true },
     { name: "Tracks & Roadmaps", href: "/departments", icon: Layers },
-    { name: "Jobs & Internships", href: "/jobs", icon: Briefcase, highlight: true },
+    { name: "Jobs & Internships", href: "/jobs", icon: Briefcase },
     { name: "Student Directory", href: "/students", icon: Users },
     { name: "Contact", href: "/contact", icon: Mail },
   ];

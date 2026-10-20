@@ -39,6 +39,12 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/feed" className="hover:text-white transition-colors flex items-center gap-1.5 text-blue-400 font-medium">
+                <span>Campus Dev Lounge</span>
+                <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-semibold">New</span>
+              </Link>
+            </li>
+            <li>
               <Link href="/departments" className="hover:text-white transition-colors">
                 Tracks & Skill Roadmaps
               </Link>

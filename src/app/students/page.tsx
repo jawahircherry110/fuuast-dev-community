@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Users,
   Search,
@@ -16,8 +17,16 @@ import {
   AlertCircle,
   Phone,
   CheckCircle2,
+  MessageSquareCode,
+  Send,
+  Code2,
+  Heart,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import ProfileModal from "@/components/ProfileModal";
+import { CommunityPost } from "@/data/postsData";
 
 export interface StudentProfile {
   id: string;
@@ -43,6 +52,19 @@ export default function StudentsPage() {
   const [deptFilter, setDeptFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Verified Student Tweeting / Lounge State
+  const [myTweets, setMyTweets] = useState<CommunityPost[]>([]);
+  const [showTweetBox, setShowTweetBox] = useState(false);
+  const [tweetTitle, setTweetTitle] = useState("");
+  const [tweetContent, setTweetContent] = useState("");
+  const [tweetCategory, setTweetCategory] = useState<CommunityPost["category"]>("Problem / Query");
+  const [tweetShowCode, setTweetShowCode] = useState(false);
+  const [tweetCode, setTweetCode] = useState("");
+  const [tweetTags, setTweetTags] = useState("");
+  const [tweetSubmitting, setTweetSubmitting] = useState(false);
+  const [tweetSuccess, setTweetSuccess] = useState<string | null>(null);
+  const [tweetError, setTweetError] = useState<string | null>(null);
 
   useEffect(() => {
     let localProf: StudentProfile | null = null;
@@ -129,6 +151,25 @@ export default function StudentsPage() {
   const handleLogout = () => {
     localStorage.removeItem("fuuast_my_profile");
     setMyProfile(null);
+    setMyTweets([]);
+  };
+
+  // Fetch tweets authored by the logged-in student
+  const fetchMyTweets = (rollNo: string) => {
+    if (!rollNo) return;
+    fetch("/api/posts", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && Array.isArray(data.posts)) {
+          const userRoll = rollNo.trim().toUpperCase();
+          const userPosts = data.posts.filter(
+            (p: CommunityPost) =>
+              p.authorRollNo && p.authorRollNo.trim().toUpperCase() === userRoll
+          );
+          setMyTweets(userPosts);
+        }
+      })
+      .catch(() => {});
   };
 
   // Check if student profile is already verified in directory or status is approved
@@ -166,6 +207,72 @@ export default function StudentsPage() {
       } catch {}
     }
   }, [isApproved, myProfile]);
+
+  useEffect(() => {
+    if (myProfile?.rollNo && isApproved) {
+      fetchMyTweets(myProfile.rollNo);
+    }
+  }, [myProfile?.rollNo, isApproved]);
+
+  const handleTweetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTweetError(null);
+    setTweetSuccess(null);
+
+    if (!myProfile || !isApproved) {
+      setTweetError("Only verified student profiles can tweet problems to the Dev Lounge.");
+      return;
+    }
+    if (!tweetTitle.trim()) {
+      setTweetError("Please enter a title or summary for your technical query.");
+      return;
+    }
+    if (!tweetContent.trim()) {
+      setTweetError("Please describe your problem or query details.");
+      return;
+    }
+
+    try {
+      setTweetSubmitting(true);
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: tweetTitle.trim(),
+          content: tweetContent.trim(),
+          category: tweetCategory,
+          codeSnippet: tweetShowCode && tweetCode.trim() ? tweetCode.trim() : undefined,
+          tags: tweetTags
+            .split(",")
+            .map((t) => t.trim().replace(/^#/, ""))
+            .filter(Boolean),
+          authorId: myProfile.id || `fuuast-${myProfile.rollNo}`,
+          authorName: myProfile.name,
+          authorRollNo: myProfile.rollNo,
+          authorDept: myProfile.department,
+          authorSemester: myProfile.semester || "Student",
+          authorPhotoUrl: myProfile.photoUrl || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setTweetError(data.error || "Failed to post tweet.");
+      } else {
+        setTweetSuccess("Problem tweeted successfully to Campus Dev Lounge! Peers can now view and comment.");
+        setTweetTitle("");
+        setTweetContent("");
+        setTweetCode("");
+        setTweetShowCode(false);
+        setTweetTags("");
+        fetchMyTweets(myProfile.rollNo);
+      }
+    } catch {
+      setTweetError("Network error. Please try again.");
+    } finally {
+      setTweetSubmitting(false);
+    }
+  };
 
   const filtered = profiles.filter((p) => {
     if (p.status && p.status !== "approved") return false;
@@ -305,6 +412,268 @@ export default function StudentsPage() {
                   )}
                 </div>
               </div>
+
+              {/* Dev Lounge Student Problem Sharing Panel */}
+              <div className="mt-5 pt-5 border-t border-blue-200/90">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/90 p-4 rounded-xl border border-blue-100 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <MessageSquareCode className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-slate-900">
+                          Campus Dev Lounge • Technical Problem Sharing
+                        </h3>
+                        <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" /> Tweeting Unlocked
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        Tweet problems, bugs, or FYP queries to peer CS, SE & AI developers.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowTweetBox(!showTweetBox);
+                        setTweetSuccess(null);
+                        setTweetError(null);
+                      }}
+                      className={`flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-xs flex items-center justify-center gap-1.5 ${
+                        showTweetBox
+                          ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
+                    >
+                      {showTweetBox ? (
+                        <>
+                          <ChevronUp className="w-3.5 h-3.5" /> Close Composer
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" /> Tweet Problem / Query
+                        </>
+                      )}
+                    </button>
+                    <Link
+                      href="/feed"
+                      className="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-blue-700 border border-blue-300 hover:bg-blue-50 transition-colors flex items-center justify-center gap-1 shadow-2xs"
+                    >
+                      <span>Explore Lounge</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Tweet Composer */}
+                {showTweetBox && (
+                  <form
+                    onSubmit={handleTweetSubmit}
+                    className="mt-4 p-5 rounded-xl bg-white border border-blue-200 shadow-xs space-y-4"
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                        <Send className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Compose Tweet to Campus Dev Lounge</span>
+                      </div>
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        Visible to all FUUAST CS, SE & AI students
+                      </span>
+                    </div>
+
+                    {tweetSuccess && (
+                      <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>{tweetSuccess}</span>
+                        </div>
+                        <Link
+                          href="/feed"
+                          className="font-bold underline text-emerald-900 hover:text-emerald-700 shrink-0"
+                        >
+                          View in Dev Lounge →
+                        </Link>
+                      </div>
+                    )}
+
+                    {tweetError && (
+                      <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>{tweetError}</span>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Topic / Category
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+                        {(
+                          [
+                            "Problem / Query",
+                            "FYP Idea & Teammates",
+                            "Bug & Code Help",
+                            "Career & Internships",
+                            "General Discussion",
+                          ] as const
+                        ).map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setTweetCategory(cat)}
+                            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border text-center transition-all ${
+                              tweetCategory === cat
+                                ? "bg-blue-600 text-white border-blue-600 shadow-2xs font-semibold"
+                                : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Problem Title or Main Question <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. CUDA Out of Memory on Colab or Next.js Hydration Mismatch"
+                        value={tweetTitle}
+                        onChange={(e) => setTweetTitle(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Problem Description & Error Details <span className="text-rose-500">*</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="Explain what you are trying to do, error logs, or what kind of peer input or teammates you need..."
+                        value={tweetContent}
+                        onChange={(e) => setTweetContent(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50"
+                        required
+                      />
+                    </div>
+
+                    {/* Code snippet optional toggle */}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setTweetShowCode(!tweetShowCode)}
+                        className="text-xs font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      >
+                        <Code2 className="w-3.5 h-3.5" />
+                        {tweetShowCode ? "Hide Code Snippet" : "+ Attach Code Snippet / Error Trace"}
+                      </button>
+
+                      {tweetShowCode && (
+                        <div className="mt-2">
+                          <textarea
+                            rows={4}
+                            placeholder="// Paste Python, JavaScript, C++, or error traceback here..."
+                            value={tweetCode}
+                            onChange={(e) => setTweetCode(e.target.value)}
+                            className="w-full p-3 text-xs font-mono rounded-lg bg-slate-900 text-slate-100 focus:outline-none border border-slate-800 leading-relaxed"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Tags (comma separated)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. pytorch, react, fast-api, fyp"
+                        value={tweetTags}
+                        onChange={(e) => setTweetTags(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setShowTweetBox(false)}
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={tweetSubmitting}
+                        className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        {tweetSubmitting ? "Tweeting..." : "Tweet Problem to Dev Lounge"}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* My Dev Lounge Activity */}
+                {myTweets.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-blue-100">
+                    <h4 className="text-xs font-bold text-slate-900 mb-2.5 flex items-center gap-1.5">
+                      <span>Your Dev Lounge Tweets & Queries</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-blue-100 text-blue-700 font-semibold">
+                        {myTweets.length}
+                      </span>
+                    </h4>
+                    <div className="space-y-2">
+                      {myTweets.slice(0, 3).map((post) => (
+                        <div
+                          key={post.id}
+                          className="p-3 rounded-xl bg-white border border-blue-100/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs hover:border-blue-300 transition-colors"
+                        >
+                          <div className="space-y-1 max-w-xl">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                {post.category}
+                              </span>
+                              <span className="font-semibold text-slate-900 truncate">
+                                {post.title || post.content.substring(0, 45) + "..."}
+                              </span>
+                            </div>
+                            <p className="text-slate-500 text-[11px] line-clamp-1">
+                              {post.content}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto text-[11px] text-slate-500">
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />
+                              {post.likes.length}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageSquare className="w-3 h-3 text-blue-500" />
+                              {post.comments.length}
+                            </span>
+                            <Link
+                              href={`/feed#post-${post.id}`}
+                              className="font-semibold text-blue-600 hover:text-blue-800 ml-1 flex items-center gap-1"
+                            >
+                              <span>View Discussion</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ) : myProfile.status === "rejected" ? (
             /* REJECTED STATE */
@@ -396,6 +765,22 @@ export default function StudentsPage() {
                   details and photo, your profile card will automatically appear live on this directory.
                 </div>
               </div>
+
+              <div className="mt-3 p-3 rounded-xl bg-amber-100/70 border border-amber-200 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <MessageSquareCode className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>
+                    <strong>Campus Dev Lounge Tweeting:</strong> Tweeting coding problems & questions unlocks automatically upon admin verification.
+                  </span>
+                </div>
+                <Link
+                  href="/feed"
+                  className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-200/80 text-amber-900 hover:bg-amber-300 transition-colors shrink-0 flex items-center gap-1 self-start sm:self-auto"
+                >
+                  <span>Browse Lounge</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
             </div>
           )
         ) : (
@@ -406,15 +791,23 @@ export default function StudentsPage() {
                 Are you a CS, SE or AI student at FUUAST Islamabad?
               </h2>
               <p className="text-sm text-slate-600 mt-1">
-                Register with your email or phone & upload your photo. Once verified by admin, your profile card goes live.
+                Register with your email or phone & upload your photo. Once verified, get your verified badge and tweet technical problems in the Campus Dev Lounge.
               </p>
             </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs whitespace-nowrap flex items-center gap-1.5"
-            >
-              <User className="w-3.5 h-3.5" /> Student Sign Up / Login
-            </button>
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs whitespace-nowrap flex items-center gap-1.5"
+              >
+                <User className="w-3.5 h-3.5" /> Student Sign Up / Login
+              </button>
+              <Link
+                href="/feed"
+                className="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium text-blue-700 bg-white border border-blue-300 hover:bg-blue-50 transition-colors shadow-2xs whitespace-nowrap flex items-center gap-1.5"
+              >
+                <MessageSquareCode className="w-3.5 h-3.5" /> Dev Lounge
+              </Link>
+            </div>
           </div>
         )}
 

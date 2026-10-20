@@ -15,6 +15,7 @@ import {
   ExternalLink,
   BookOpen,
   Sparkles,
+  MessageSquareCode,
 } from "lucide-react";
 import { JobOpportunity } from "@/data/initialData";
 import HeroCodeBlock from "@/components/HeroCodeBlock";
@@ -59,22 +60,22 @@ export default function Home() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
-                  href="/students"
+                  href="/feed"
                   className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-sm flex items-center gap-1.5"
                 >
-                  <Users className="w-3.5 h-3.5" /> Explore Students
+                  <MessageSquareCode className="w-3.5 h-3.5" /> Dev Lounge
+                </Link>
+                <Link
+                  href="/students"
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 transition-all flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Users className="w-3.5 h-3.5 text-blue-600" /> Explore Students
                 </Link>
                 <Link
                   href="/departments"
-                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 transition-all flex items-center gap-1.5 shadow-2xs"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Tracks & Roadmaps
-                </Link>
-                <Link
-                  href="/jobs"
                   className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1.5"
                 >
-                  <Briefcase className="w-3.5 h-3.5 text-slate-600" /> Browse Jobs
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Tracks & Roadmaps
                 </Link>
               </div>
 
@@ -90,7 +91,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                  <span>FYP Study Circles</span>
+                  <span>Campus Dev Lounge</span>
                 </div>
               </div>
             </div>
@@ -297,10 +298,16 @@ export default function Home() {
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
-              href="/students"
-              className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-xs"
+              href="/feed"
+              className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-xs flex items-center gap-1.5"
             >
-              Go to Student Directory
+              <MessageSquareCode className="w-4 h-4" /> Campus Dev Lounge
+            </Link>
+            <Link
+              href="/students"
+              className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 transition-colors"
+            >
+              Student Directory
             </Link>
             <Link
               href="/contact"
