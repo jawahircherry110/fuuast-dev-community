@@ -46,11 +46,6 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/departments" className="hover:text-white transition-colors">
-                Tracks & Skill Roadmaps
-              </Link>
-            </li>
-            <li>
               <Link href="/jobs" className="hover:text-white transition-colors">
                 Jobs & Internships
               </Link>
@@ -68,9 +63,9 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Academic Departments */}
+        {/* Academic Programs */}
         <div>
-          <h4 className="text-white font-semibold text-xs mb-3">Academic Tracks</h4>
+          <h4 className="text-white font-semibold text-xs mb-3">Academic Programs</h4>
           <ul className="space-y-2 text-[11px]">
             <li>BS Computer Science (BSCS)</li>
             <li>BS Software Engineering (BSSE)</li>

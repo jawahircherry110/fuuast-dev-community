@@ -7,14 +7,9 @@ import {
   Briefcase,
   Users,
   ArrowRight,
-  Laptop,
-  Layers,
-  Cpu,
   Building2,
   MapPin,
   ExternalLink,
-  BookOpen,
-  Sparkles,
   MessageSquareCode,
 } from "lucide-react";
 import { JobOpportunity } from "@/data/initialData";
@@ -54,7 +49,7 @@ export default function Home() {
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
                 The official academic and peer community for Computer Science, Software Engineering,
                 and Artificial Intelligence students at FUUAST Islamabad. Connect with verified peers,
-                master roadmap.sh-aligned skills, find FYP teammates, and discover internships.
+                find FYP teammates, and discover career opportunities.
               </p>
 
               {/* Action Buttons */}
@@ -72,10 +67,10 @@ export default function Home() {
                   <Users className="w-3.5 h-3.5 text-blue-600" /> Explore Students
                 </Link>
                 <Link
-                  href="/departments"
+                  href="/jobs"
                   className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1.5"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Tracks & Roadmaps
+                  <Briefcase className="w-3.5 h-3.5 text-slate-600" /> Browse Jobs
                 </Link>
               </div>
 
@@ -83,7 +78,7 @@ export default function Home() {
               <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-slate-500 font-medium">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span>3 Specialized Tracks</span>
+                  <span>Student Directory</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -108,8 +103,8 @@ export default function Home() {
       <section className="py-8 bg-slate-50/60 border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="p-3">
-            <div className="text-xl sm:text-2xl font-semibold text-blue-600">3 Tracks</div>
-            <div className="text-xs text-slate-500 mt-0.5">BSCS, BSSE & BSAI</div>
+            <div className="text-xl sm:text-2xl font-semibold text-blue-600">Community</div>
+            <div className="text-xs text-slate-500 mt-0.5">CS, SE & AI</div>
           </div>
           <div className="p-3">
             <div className="text-xl sm:text-2xl font-semibold text-blue-600">Islamabad</div>
@@ -122,91 +117,6 @@ export default function Home() {
           <div className="p-3">
             <div className="text-xl sm:text-2xl font-semibold text-blue-600">Placements</div>
             <div className="text-xs text-slate-500 mt-0.5">Internship Hub</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Academic Departments Overview */}
-      <section className="py-16 max-w-6xl mx-auto px-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
-              Academic Tracks
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Specialized Programs at FUUAST Islamabad
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed mt-1 max-w-xl">
-              Fostering excellence across systems programming, software craftsmanship, and intelligent models.
-            </p>
-          </div>
-          <Link
-            href="/departments"
-            className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 self-start sm:self-auto"
-          >
-            Explore all curriculums <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* CS */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white hover:border-blue-300 transition-colors shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-                <Laptop className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-wide">BSCS</span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1 mb-2">Computer Science</h3>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                Core theory, advanced algorithms, distributed computing, database internals, and full-stack development.
-              </p>
-            </div>
-            <Link
-              href="/departments#cs"
-              className="text-xs sm:text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1"
-            >
-              Learn more about BSCS <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* SE */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white hover:border-blue-300 transition-colors shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center mb-3">
-                <Layers className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-semibold text-sky-600 uppercase tracking-wide">BSSE</span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1 mb-2">Software Engineering</h3>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                Architecture, design patterns, testing & SQA, CI/CD, mobile application engineering, and team methodologies.
-              </p>
-            </div>
-            <Link
-              href="/departments#se"
-              className="text-xs sm:text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1"
-            >
-              Learn more about BSSE <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* AI */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white hover:border-blue-300 transition-colors shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-                <Cpu className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-semibold text-indigo-600 uppercase tracking-wide">BSAI</span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1 mb-2">Artificial Intelligence</h3>
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                Neural networks, machine learning, computer vision, natural language processing, and data science workflows.
-              </p>
-            </div>
-            <Link
-              href="/departments#ai"
-              className="text-xs sm:text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1"
-            >
-              Learn more about BSAI <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </div>
       </section>

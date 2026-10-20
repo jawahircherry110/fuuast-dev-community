@@ -36,7 +36,7 @@ export default function AboutPage() {
       badge: "Skill & Confidence",
       description: (
         <>
-          We equip every student with structured industry roadmaps and hands-on guidance so they can{" "}
+          We equip every student with practical peer mentorship and hands-on guidance so they can{" "}
           <span className="text-blue-600 font-semibold">master modern software engineering</span>, build production-grade projects, and graduate with complete confidence.
         </>
       ),
