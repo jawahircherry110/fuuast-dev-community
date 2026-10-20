@@ -146,6 +146,13 @@ export default function AboutPage() {
     <div className="py-12 bg-white">
       {/* Page Header / Hero */}
       <div className="max-w-4xl mx-auto px-4 text-center mb-16">
+        <div className="flex justify-center mb-5">
+          <img
+            src="/logo.png"
+            alt="FUUAST Dev Community Logo"
+            className="h-14 sm:h-16 w-auto object-contain"
+          />
+        </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-4">
           <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
           <span>FUUAST Islamabad • Academic Developer Community</span>

@@ -70,18 +70,15 @@ export default function Navbar() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-semibold shadow-xs">
-              <Code className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-semibold text-slate-900 tracking-tight text-sm sm:text-base leading-none block">
-                FUUAST <span className="text-blue-600">Dev Community</span>
-              </span>
-              <span className="text-[10px] text-slate-500 font-normal">
-                Islamabad Campus
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <img
+              src="/logo.png"
+              alt="FUUAST Dev Community"
+              className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+            />
+            <span className="hidden lg:inline-block text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-2.5 py-0.5 leading-tight">
+              Islamabad<br />Campus
+            </span>
           </Link>
 
           {/* Desktop Navigation Links */}

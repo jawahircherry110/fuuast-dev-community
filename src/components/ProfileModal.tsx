@@ -329,6 +329,17 @@ export default function ProfileModal({
           <div>
             {/* Header with Tabs */}
             <div className="mb-5 pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <img
+                  src="/logo.png"
+                  alt="FUUAST Dev Community"
+                  className="h-8 w-auto object-contain"
+                />
+                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  Student Portal
+                </span>
+              </div>
+
               <div className="flex items-center gap-2 mb-3">
                 <button
                   type="button"

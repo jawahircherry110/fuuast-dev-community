@@ -230,8 +230,12 @@ export default function AdminPage() {
       <div className="py-20 px-4 bg-slate-50 min-h-[75vh] flex items-center justify-center">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-8 max-w-sm w-full">
           <div className="text-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3 shadow-xs">
-              <Lock className="w-6 h-6" />
+            <div className="flex justify-center mb-4">
+              <img
+                src="/logo.png"
+                alt="FUUAST Dev Community Logo"
+                className="h-11 w-auto object-contain"
+              />
             </div>
             <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Admin Portal Login</h1>
             <p className="text-xs text-slate-500 mt-1">
@@ -310,16 +314,23 @@ export default function AdminPage() {
     <div className="py-10 px-4 max-w-6xl mx-auto">
       {/* Top Admin Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 mb-8">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[11px] font-semibold mb-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Authenticated Administrator
+        <div className="flex items-center gap-3.5">
+          <img
+            src="/logo-icon.png"
+            alt="FUUAST Dev Community"
+            className="w-12 h-12 object-contain shrink-0"
+          />
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[11px] font-semibold mb-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Authenticated Administrator
+            </div>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+              FUUAST Islamabad Admin Portal
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Verify student registrations, review contact submissions, and publish internship openings.
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
-            FUUAST Islamabad Admin Portal
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Verify student registrations, review contact submissions, and publish internship openings.
-          </p>
         </div>
 
         <button

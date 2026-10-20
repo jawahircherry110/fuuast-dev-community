@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Code, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -8,11 +8,12 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         {/* Brand */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-white font-semibold text-sm">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-              <Code className="w-4 h-4" />
-            </div>
-            FUUAST Dev Community
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo-white.png"
+              alt="FUUAST Dev Community"
+              className="h-8 sm:h-9 w-auto object-contain"
+            />
           </div>
           <p className="text-slate-400 leading-relaxed text-[11px]">
             Federal Urdu University of Arts, Science & Technology — Islamabad Campus.
